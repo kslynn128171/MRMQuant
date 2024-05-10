@@ -1,0 +1,1873 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<srm_settings format_version="23.1" software_version="Skyline (64-bit) 23.1.0.380 (cf25ad847)">
+  <settings_summary name="Default">
+    <peptide_settings>
+      <enzyme name="Trypsin" cut="KR" no_cut="P" sense="C" />
+      <digest_settings max_missed_cleavages="0" />
+      <peptide_prediction use_measured_rts="true" measured_rt_window="4" />
+      <peptide_filter start="1" min_length="6" max_length="25">
+        <peptide_exclusions />
+      </peptide_filter>
+      <peptide_libraries pick="library" />
+      <peptide_modifications max_variable_mods="3" max_neutral_losses="1" internal_standard="IS">
+        <static_modifications>
+          <static_modification name="Carbamidomethyl (C)" aminoacid="C" formula="H3C2NO" unimod_id="4" />
+        </static_modifications>
+        <heavy_modifications isotope_label="IS">
+          <static_modification name="Heavy K" aminoacid="K" terminus="C" label_13C="true" label_15N="true" />
+          <static_modification name="Heavy R" aminoacid="R" terminus="C" label_13C="true" label_15N="true" />
+        </heavy_modifications>
+      </peptide_modifications>
+      <quantification weighting="none" fit="none" normalization="ratio_to_IS" ms_level="1" simple_ratios="true" />
+    </peptide_settings>
+    <transition_settings>
+      <transition_prediction precursor_mass_type="Monoisotopic" fragment_mass_type="Monoisotopic" optimize_by="None">
+        <predict_collision_energy name="Waters Xevo" step_size="1" step_count="5">
+          <regression_ce charge="2" slope="0.037" intercept="-1.066" />
+          <regression_ce charge="3" slope="0.036" intercept="-1.328" />
+        </predict_collision_energy>
+      </transition_prediction>
+      <transition_filter precursor_charges="2,3" product_charges="1,2" precursor_adducts="[M-3H],[M-2H],[M-H],[M-],[M+H],[M+],[M+2H],[M+3H]" product_adducts="[M-3],[M-2],[M-],[M+],[M+2],[M+3]" fragment_types="y,b" small_molecule_fragment_types="f" fragment_range_first="ion 3" fragment_range_last="last ion" precursor_mz_window="2" auto_select="true">
+        <measured_ion name="N-terminal to Proline" cut="P" sense="N" min_length="3" />
+        <measured_ion name="C-terminal to Glu or Asp" cut="ED" sense="C" min_length="3" />
+      </transition_filter>
+      <transition_libraries ion_match_tolerance="1" min_ion_count="0" ion_count="5" pick_from="all" />
+      <transition_integration integrate_all="true" />
+      <transition_instrument min_mz="50" max_mz="1250" mz_match_tolerance="0.01" />
+    </transition_settings>
+    <data_settings document_guid="823911b5-5302-40f4-9a4e-afe894f5553e">
+      <views>
+        <view name="Peak Boundaries" rowsource="pwiz.Skyline.Model.Databinding.Entities.Precursor" sublist="Results!*">
+          <column name="Results!*.Value.PeptideResult.ResultFile.FileName" />
+          <column name="Peptide.ModifiedSequence" />
+          <column name="Results!*.Value.MinStartTime" />
+          <column name="Results!*.Value.MaxEndTime" />
+          <column name="Charge" />
+          <column name="IsDecoy" caption="PrecursorIsDecoy" />
+          <filter column="Results!*.Value" opname="isnotnullorblank" />
+        </view>
+        <view name="Molecule Quantification" rowsource="pwiz.Skyline.Model.Databinding.Entities.Peptide" sublist="Results!*" uimode="small_molecules">
+          <column name="" />
+          <column name="Protein" />
+          <column name="StandardType" />
+          <column name="InternalStandardConcentration" />
+          <column name="ConcentrationMultiplier" />
+          <column name="NormalizationMethod" />
+          <column name="CalibrationCurve" />
+          <column name="Note" />
+        </view>
+        <view name="Molecule Ratio Results" rowsource="pwiz.Skyline.Model.Databinding.Entities.Peptide" sublist="Results!*" uimode="small_molecules">
+          <column name="" />
+          <column name="Protein" />
+          <column name="Results!*.Value.ResultFile.Replicate" />
+          <column name="Results!*.Value.PeptidePeakFoundRatio" />
+          <column name="Results!*.Value.PeptideRetentionTime" />
+          <column name="Results!*.Value.RatioToStandard" />
+          <column name="Results!*.Value.Quantification" />
+          <filter column="Results!*.Value" opname="isnotnullorblank" />
+        </view>
+        <view name="Molecule Peak Boundaries" rowsource="pwiz.Skyline.Model.Databinding.Entities.Precursor" sublist="Results!*" uimode="small_molecules">
+          <column name="Results!*.Value.PeptideResult.ResultFile.FileName" />
+          <column name="Peptide" />
+          <column name="Results!*.Value.MinStartTime" />
+          <column name="Results!*.Value.MaxEndTime" />
+          <column name="Adduct" />
+          <filter column="Results!*.Value" opname="isnotnullorblank" />
+        </view>
+      </views>
+    </data_settings>
+  </settings_summary>
+  <peptide_list label_name="LPE 16:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.6" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="453.285524" neutral_mass_monoisotopic="453.285524">
+      <precursor charge="1" precursor_mz="454.2928" auto_manage_children="false" collision_energy="15.742834" ion_formula="[M+H]" neutral_mass_average="453.285524" neutral_mass_monoisotopic="453.285524">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="313.29334857990943" neutral_mass_monoisotopic="313.29334857990943" product_charge="1">
+          <precursor_mz>454.2928</precursor_mz>
+          <product_mz>313.2928</product_mz>
+          <collision_energy>15.742834</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPE 18:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.34" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="477.301224" neutral_mass_monoisotopic="477.301224">
+      <precursor charge="1" precursor_mz="478.3085" auto_manage_children="false" collision_energy="16.631414" ion_formula="[M+H]" neutral_mass_average="477.301224" neutral_mass_monoisotopic="477.301224">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="337.30904857990942" neutral_mass_monoisotopic="337.30904857990942" product_charge="1">
+          <precursor_mz>478.3085</precursor_mz>
+          <product_mz>337.3085</product_mz>
+          <collision_energy>16.631414</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPE 18:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.7" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="479.301224" neutral_mass_monoisotopic="479.301224">
+      <precursor charge="1" precursor_mz="480.3085" auto_manage_children="false" collision_energy="16.705414" ion_formula="[M+H]" neutral_mass_average="479.301224" neutral_mass_monoisotopic="479.301224">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="339.30904857990942" neutral_mass_monoisotopic="339.30904857990942" product_charge="1">
+          <precursor_mz>480.3085</precursor_mz>
+          <product_mz>339.3085</product_mz>
+          <collision_energy>16.705414</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPE 18:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="2.2" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="481.316824" neutral_mass_monoisotopic="481.316824">
+      <precursor charge="1" precursor_mz="482.3241" auto_manage_children="false" collision_energy="16.779992" ion_formula="[M+H]" neutral_mass_average="481.316824" neutral_mass_monoisotopic="481.316824">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="341.32464857990942" neutral_mass_monoisotopic="341.32464857990942" product_charge="1">
+          <precursor_mz>482.3241</precursor_mz>
+          <product_mz>341.3241</product_mz>
+          <collision_energy>16.779992</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPE 18:1 (d7)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.68" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="486.301224" neutral_mass_monoisotopic="486.301224">
+      <precursor charge="1" precursor_mz="487.3085" auto_manage_children="false" collision_energy="16.964414" ion_formula="[M+H]" neutral_mass_average="486.301224" neutral_mass_monoisotopic="486.301224">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="346.30904857990942" neutral_mass_monoisotopic="346.30904857990942" product_charge="1">
+          <precursor_mz>487.3085</precursor_mz>
+          <product_mz>346.3085</product_mz>
+          <collision_energy>16.964414</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPE 20:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.29" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="501.285524" neutral_mass_monoisotopic="501.285524">
+      <precursor charge="1" precursor_mz="502.2928" auto_manage_children="false" collision_energy="17.518834" ion_formula="[M+H]" neutral_mass_average="501.285524" neutral_mass_monoisotopic="501.285524">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="361.29334857990943" neutral_mass_monoisotopic="361.29334857990943" product_charge="1">
+          <precursor_mz>502.2928</precursor_mz>
+          <product_mz>361.2928</product_mz>
+          <collision_energy>17.518834</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPE 22:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.23" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="525.285524" neutral_mass_monoisotopic="525.285524">
+      <precursor charge="1" precursor_mz="526.2928" auto_manage_children="false" collision_energy="18.406834" ion_formula="[M+H]" neutral_mass_average="525.285524" neutral_mass_monoisotopic="525.285524">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="385.29334857990943" neutral_mass_monoisotopic="385.29334857990943" product_charge="1">
+          <precursor_mz>526.2928</precursor_mz>
+          <product_mz>385.2928</product_mz>
+          <collision_energy>18.406834</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 14:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.08" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="467.301224" neutral_mass_monoisotopic="467.301224">
+      <precursor charge="1" precursor_mz="468.3085" auto_manage_children="false" collision_energy="16.261414" ion_formula="[M+H]" neutral_mass_average="467.301224" neutral_mass_monoisotopic="467.301224">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>468.3085</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>16.261414</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC(P-16:0/0:0)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.72" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="479.337624" neutral_mass_monoisotopic="479.337624">
+      <precursor charge="1" precursor_mz="480.3449" auto_manage_children="false" collision_energy="16.706761" ion_formula="[M+H]" neutral_mass_average="479.337624" neutral_mass_monoisotopic="479.337624">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="104.08054857990946" neutral_mass_monoisotopic="104.08054857990946" product_charge="1">
+          <precursor_mz>480.3449</precursor_mz>
+          <product_mz>104.08</product_mz>
+          <collision_energy>16.706761</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC(O-16:0/0:0)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.78" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="481.353224" neutral_mass_monoisotopic="481.353224">
+      <precursor charge="1" precursor_mz="482.3605" auto_manage_children="false" collision_energy="16.781338" ion_formula="[M+H]" neutral_mass_average="481.353224" neutral_mass_monoisotopic="481.353224">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="104.08054857990946" neutral_mass_monoisotopic="104.08054857990946" product_charge="1">
+          <precursor_mz>482.3605</precursor_mz>
+          <product_mz>104.08</product_mz>
+          <collision_energy>16.781338</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 15:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.29" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="481.353224" neutral_mass_monoisotopic="481.353224">
+      <precursor charge="1" precursor_mz="482.3605" auto_manage_children="false" collision_energy="16.781338" ion_formula="[M+H]" neutral_mass_average="481.353224" neutral_mass_monoisotopic="481.353224">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>482.3605</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>16.781338</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 16:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.16" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="493.316824" neutral_mass_monoisotopic="493.316824">
+      <precursor charge="1" precursor_mz="494.3241" auto_manage_children="false" collision_energy="17.223992" ion_formula="[M+H]" neutral_mass_average="493.316824" neutral_mass_monoisotopic="493.316824">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>494.3241</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>17.223992</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 16:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.53" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="495.33252400000003" neutral_mass_monoisotopic="495.33252400000003">
+      <precursor charge="1" precursor_mz="496.3398" auto_manage_children="false" collision_energy="17.298573" ion_formula="[M+H]" neutral_mass_average="495.33252400000003" neutral_mass_monoisotopic="495.33252400000003">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>496.3398</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>17.298573</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 17:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.38" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="507.33252400000003" neutral_mass_monoisotopic="507.33252400000003">
+      <precursor charge="1" precursor_mz="508.3398" auto_manage_children="false" collision_energy="17.742573" ion_formula="[M+H]" neutral_mass_average="507.33252400000003" neutral_mass_monoisotopic="507.33252400000003">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>508.3398</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>17.742573</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 17:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.82" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="509.348124" neutral_mass_monoisotopic="509.348124">
+      <precursor charge="1" precursor_mz="510.3554" auto_manage_children="false" collision_energy="17.81715" ion_formula="[M+H]" neutral_mass_average="509.348124" neutral_mass_monoisotopic="509.348124">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>510.3554</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>17.81715</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 18:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.28" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="519.33252399999992" neutral_mass_monoisotopic="519.33252399999992">
+      <precursor charge="1" precursor_mz="520.3398" auto_manage_children="false" collision_energy="18.186573" ion_formula="[M+H]" neutral_mass_average="519.33252399999992" neutral_mass_monoisotopic="519.33252399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>520.3398</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>18.186573</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 18:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.62" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="521.348124" neutral_mass_monoisotopic="521.348124">
+      <precursor charge="1" precursor_mz="522.3554" auto_manage_children="false" collision_energy="18.26115" ion_formula="[M+H]" neutral_mass_average="521.348124" neutral_mass_monoisotopic="521.348124">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>522.3554</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>18.26115</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 18:1 (d7)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.61" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="528.29812399999992" neutral_mass_monoisotopic="528.29812399999992">
+      <precursor charge="1" precursor_mz="529.3054" auto_manage_children="false" collision_energy="18.5183" ion_formula="[M+H]" neutral_mass_average="528.29812399999992" neutral_mass_monoisotopic="528.29812399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>529.3054</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>18.5183</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 20:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.05" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="541.316824" neutral_mass_monoisotopic="541.316824">
+      <precursor charge="1" precursor_mz="542.3241" auto_manage_children="false" collision_energy="18.999992" ion_formula="[M+H]" neutral_mass_average="541.316824" neutral_mass_monoisotopic="541.316824">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>542.3241</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>18.999992</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 20:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.24" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="543.33252399999992" neutral_mass_monoisotopic="543.33252399999992">
+      <precursor charge="1" precursor_mz="544.3398" auto_manage_children="false" collision_energy="19.074573" ion_formula="[M+H]" neutral_mass_average="543.33252399999992" neutral_mass_monoisotopic="543.33252399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>544.3398</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>19.074573</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 20:3" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.43" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="545.348124" neutral_mass_monoisotopic="545.348124">
+      <precursor charge="1" precursor_mz="546.3554" auto_manage_children="false" collision_energy="19.14915" ion_formula="[M+H]" neutral_mass_average="545.348124" neutral_mass_monoisotopic="545.348124">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>546.3554</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>19.14915</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 20:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.75" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="547.36382399999991" neutral_mass_monoisotopic="547.36382399999991">
+      <precursor charge="1" precursor_mz="548.3711" auto_manage_children="false" collision_energy="19.223731" ion_formula="[M+H]" neutral_mass_average="547.36382399999991" neutral_mass_monoisotopic="547.36382399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>548.3711</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>19.223731</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 22:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.18" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="567.33252399999992" neutral_mass_monoisotopic="567.33252399999992">
+      <precursor charge="1" precursor_mz="568.3398" auto_manage_children="false" collision_energy="19.962573" ion_formula="[M+H]" neutral_mass_average="567.33252399999992" neutral_mass_monoisotopic="567.33252399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>568.3398</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>19.962573</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 22:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="1.45" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="569.33252399999992" neutral_mass_monoisotopic="569.33252399999992">
+      <precursor charge="1" precursor_mz="570.3398" auto_manage_children="false" collision_energy="20.036573" ion_formula="[M+H]" neutral_mass_average="569.33252399999992" neutral_mass_monoisotopic="569.33252399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>570.3398</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>20.036573</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC(P-18:0/0:0)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="2.37" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="507.33252400000003" neutral_mass_monoisotopic="507.33252400000003">
+      <precursor charge="1" precursor_mz="508.3398" auto_manage_children="false" collision_energy="17.742573" ion_formula="[M+H]" neutral_mass_average="507.33252400000003" neutral_mass_monoisotopic="507.33252400000003">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="104.08054857990946" neutral_mass_monoisotopic="104.08054857990946" product_charge="1">
+          <precursor_mz>508.3398</precursor_mz>
+          <product_mz>104.08</product_mz>
+          <collision_energy>17.742573</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC(O-18:0/0:0)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="2.43" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="509.348124" neutral_mass_monoisotopic="509.348124">
+      <precursor charge="1" precursor_mz="510.3554" auto_manage_children="false" collision_energy="17.81715" ion_formula="[M+H]" neutral_mass_average="509.348124" neutral_mass_monoisotopic="509.348124">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="104.08054857990946" neutral_mass_monoisotopic="104.08054857990946" product_charge="1">
+          <precursor_mz>510.3554</precursor_mz>
+          <product_mz>104.08</product_mz>
+          <collision_energy>17.81715</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 18:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="2.13" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="523.36382399999991" neutral_mass_monoisotopic="523.36382399999991">
+      <precursor charge="1" precursor_mz="524.3711" auto_manage_children="false" collision_energy="18.335731" ion_formula="[M+H]" neutral_mass_average="523.36382399999991" neutral_mass_monoisotopic="523.36382399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>524.3711</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>18.335731</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 19:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="2.46" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="537.372724" neutral_mass_monoisotopic="537.372724">
+      <precursor charge="1" precursor_mz="538.38" auto_manage_children="false" collision_energy="18.85406" ion_formula="[M+H]" neutral_mass_average="537.372724" neutral_mass_monoisotopic="537.372724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>538.38</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>18.85406</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 20:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="2.2" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="549.379424" neutral_mass_monoisotopic="549.379424">
+      <precursor charge="1" precursor_mz="550.3867" auto_manage_children="false" collision_energy="19.298308" ion_formula="[M+H]" neutral_mass_average="549.379424" neutral_mass_monoisotopic="549.379424">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>550.3867</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>19.298308</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 20:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="2.82" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="551.3951239999999" neutral_mass_monoisotopic="551.3951239999999">
+      <precursor charge="1" precursor_mz="552.4024" auto_manage_children="false" collision_energy="19.372889" ion_formula="[M+H]" neutral_mass_average="551.3951239999999" neutral_mass_monoisotopic="551.3951239999999">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>552.4024</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>19.372889</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 22:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="3.54" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="579.4227239999999" neutral_mass_monoisotopic="579.4227239999999">
+      <precursor charge="1" precursor_mz="580.43" auto_manage_children="false" collision_energy="20.40991" ion_formula="[M+H]" neutral_mass_average="579.4227239999999" neutral_mass_monoisotopic="579.4227239999999">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>580.43</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>20.40991</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="LPC 24:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.24" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="607.462724" neutral_mass_monoisotopic="607.462724">
+      <precursor charge="1" precursor_mz="608.47" auto_manage_children="false" collision_energy="21.44739" ion_formula="[M+H]" neutral_mass_average="607.462724" neutral_mass_monoisotopic="607.462724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>608.47</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>21.44739</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C12:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="3.75" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="646.51272399999993" neutral_mass_monoisotopic="646.51272399999993">
+      <precursor charge="1" precursor_mz="647.52" auto_manage_children="false" collision_energy="22.89224" ion_formula="[M+H]" neutral_mass_average="646.51272399999993" neutral_mass_monoisotopic="646.51272399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>647.52</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>22.89224</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C13:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.09" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="660.52272399999993" neutral_mass_monoisotopic="660.52272399999993">
+      <precursor charge="1" precursor_mz="661.53" auto_manage_children="false" collision_energy="23.41061" ion_formula="[M+H]" neutral_mass_average="660.52272399999993" neutral_mass_monoisotopic="660.52272399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>661.53</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>23.41061</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C14:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="3.87" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="672.53272399999992" neutral_mass_monoisotopic="672.53272399999992">
+      <precursor charge="1" precursor_mz="673.54" auto_manage_children="false" collision_energy="23.85498" ion_formula="[M+H]" neutral_mass_average="672.53272399999992" neutral_mass_monoisotopic="672.53272399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>673.54</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>23.85498</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C14:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.43" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="674.54272399999991" neutral_mass_monoisotopic="674.54272399999991">
+      <precursor charge="1" precursor_mz="675.55" auto_manage_children="false" collision_energy="23.92935" ion_formula="[M+H]" neutral_mass_average="674.54272399999991" neutral_mass_monoisotopic="674.54272399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>675.55</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>23.92935</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="Dihydro SM C14:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.66" explicit_retention_time_window="0.12" auto_manage_children="false" neutral_mass_average="676.52272399999993" neutral_mass_monoisotopic="676.52272399999993">
+      <precursor charge="1" precursor_mz="677.53" auto_manage_children="false" collision_energy="24.00261" ion_formula="[M+H]" neutral_mass_average="676.52272399999993" neutral_mass_monoisotopic="676.52272399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>677.53</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>24.00261</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C16:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.53" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="700.582724" neutral_mass_monoisotopic="700.582724">
+      <precursor charge="1" precursor_mz="701.59" auto_manage_children="false" collision_energy="24.89283" ion_formula="[M+H]" neutral_mass_average="700.582724" neutral_mass_monoisotopic="700.582724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>701.59</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>24.89283</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="CE 18:3" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="8.22" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="663.572724" neutral_mass_monoisotopic="663.572724">
+      <precursor charge="1" precursor_mz="664.58" auto_manage_children="false" collision_energy="23.52346" ion_formula="[M+H]" neutral_mass_average="663.572724" neutral_mass_monoisotopic="663.572724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="369.35054857990946" neutral_mass_monoisotopic="369.35054857990946" product_charge="1">
+          <precursor_mz>664.58</precursor_mz>
+          <product_mz>369.35</product_mz>
+          <collision_energy>23.52346</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="CE 18:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="8.41" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="665.582724" neutral_mass_monoisotopic="665.582724">
+      <precursor charge="1" precursor_mz="666.59" auto_manage_children="false" collision_energy="23.59783" ion_formula="[M+H]" neutral_mass_average="665.582724" neutral_mass_monoisotopic="665.582724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="369.35054857990946" neutral_mass_monoisotopic="369.35054857990946" product_charge="1">
+          <precursor_mz>666.59</precursor_mz>
+          <product_mz>369.35</product_mz>
+          <collision_energy>23.59783</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="CE 18:1 (d7)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="8.62" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="674.602724" neutral_mass_monoisotopic="674.602724">
+      <precursor charge="1" precursor_mz="675.61" auto_manage_children="false" collision_energy="23.93157" ion_formula="[M+H]" neutral_mass_average="674.602724" neutral_mass_monoisotopic="674.602724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="369.35054857990946" neutral_mass_monoisotopic="369.35054857990946" product_charge="1">
+          <precursor_mz>675.61</precursor_mz>
+          <product_mz>369.35</product_mz>
+          <collision_energy>23.93157</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="CE 20:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="8.07" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="687.572724" neutral_mass_monoisotopic="687.572724">
+      <precursor charge="1" precursor_mz="688.58" auto_manage_children="false" collision_energy="24.41146" ion_formula="[M+H]" neutral_mass_average="687.572724" neutral_mass_monoisotopic="687.572724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="369.35054857990946" neutral_mass_monoisotopic="369.35054857990946" product_charge="1">
+          <precursor_mz>688.58</precursor_mz>
+          <product_mz>369.35</product_mz>
+          <collision_energy>24.41146</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="CE 20:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="8.29" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="689.582724" neutral_mass_monoisotopic="689.582724">
+      <precursor charge="1" precursor_mz="690.59" auto_manage_children="false" collision_energy="24.48583" ion_formula="[M+H]" neutral_mass_average="689.582724" neutral_mass_monoisotopic="689.582724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="369.35054857990946" neutral_mass_monoisotopic="369.35054857990946" product_charge="1">
+          <precursor_mz>690.59</precursor_mz>
+          <product_mz>369.35</product_mz>
+          <collision_energy>24.48583</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="CE 20:3" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="8.45" explicit_retention_time_window="0.15" auto_manage_children="false" neutral_mass_average="691.602724" neutral_mass_monoisotopic="691.602724">
+      <precursor charge="1" precursor_mz="692.61" auto_manage_children="false" collision_energy="24.56057" ion_formula="[M+H]" neutral_mass_average="691.602724" neutral_mass_monoisotopic="691.602724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="369.35054857990946" neutral_mass_monoisotopic="369.35054857990946" product_charge="1">
+          <precursor_mz>692.61</precursor_mz>
+          <product_mz>369.35</product_mz>
+          <collision_energy>24.56057</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="CE 22:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="8.17" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="713.582724" neutral_mass_monoisotopic="713.582724">
+      <precursor charge="1" precursor_mz="714.59" auto_manage_children="false" collision_energy="25.37383" ion_formula="[M+H]" neutral_mass_average="713.582724" neutral_mass_monoisotopic="713.582724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="369.35054857990946" neutral_mass_monoisotopic="369.35054857990946" product_charge="1">
+          <precursor_mz>714.59</precursor_mz>
+          <product_mz>369.35</product_mz>
+          <collision_energy>25.37383</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 28:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.43" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="675.452724" neutral_mass_monoisotopic="675.452724">
+      <precursor charge="1" precursor_mz="676.46" auto_manage_children="false" collision_energy="23.96302" ion_formula="[M+H]" neutral_mass_average="675.452724" neutral_mass_monoisotopic="675.452724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>676.46</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>23.96302</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 32:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.71" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="729.546524" neutral_mass_monoisotopic="729.546524">
+      <precursor charge="1" precursor_mz="730.5538" auto_manage_children="false" collision_energy="25.964491" ion_formula="[M+H]" neutral_mass_average="729.546524" neutral_mass_monoisotopic="729.546524">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>730.5538</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>25.964491</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 32:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.18" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="731.546524" neutral_mass_monoisotopic="731.546524">
+      <precursor charge="1" precursor_mz="732.5538" auto_manage_children="false" collision_energy="26.038491" ion_formula="[M+H]" neutral_mass_average="731.546524" neutral_mass_monoisotopic="731.546524">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>732.5538</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.038491</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 32:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.62" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="733.56212399999993" neutral_mass_monoisotopic="733.56212399999993">
+      <precursor charge="1" precursor_mz="734.5694" auto_manage_children="false" collision_energy="26.113068" ion_formula="[M+H]" neutral_mass_average="733.56212399999993" neutral_mass_monoisotopic="733.56212399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>734.5694</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.113068</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 33:1 (d7)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.4" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="752.53272399999992" neutral_mass_monoisotopic="752.53272399999992">
+      <precursor charge="1" precursor_mz="753.54" auto_manage_children="false" collision_energy="26.81498" ion_formula="[M+H]" neutral_mass_average="752.53272399999992" neutral_mass_monoisotopic="752.53272399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>753.54</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.81498</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 34:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.64" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="753.54272399999991" neutral_mass_monoisotopic="753.54272399999991">
+      <precursor charge="1" precursor_mz="754.55" auto_manage_children="false" collision_energy="26.85235" ion_formula="[M+H]" neutral_mass_average="753.54272399999991" neutral_mass_monoisotopic="753.54272399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>754.55</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.85235</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 34:3a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.79" explicit_retention_time_window="0.05" auto_manage_children="false" neutral_mass_average="755.546524" neutral_mass_monoisotopic="755.546524">
+      <precursor charge="1" precursor_mz="756.5538" auto_manage_children="false" collision_energy="26.926491" ion_formula="[M+H]" neutral_mass_average="755.546524" neutral_mass_monoisotopic="755.546524">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>756.5538</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.926491</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 34:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.3" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="757.56212399999993" neutral_mass_monoisotopic="757.56212399999993">
+      <precursor charge="1" precursor_mz="758.5694" auto_manage_children="false" collision_energy="27.001068" ion_formula="[M+H]" neutral_mass_average="757.56212399999993" neutral_mass_monoisotopic="757.56212399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>758.5694</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.001068</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 34:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.65" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="759.577824" neutral_mass_monoisotopic="759.577824">
+      <precursor charge="1" precursor_mz="760.5851" auto_manage_children="false" collision_energy="27.075649" ion_formula="[M+H]" neutral_mass_average="759.577824" neutral_mass_monoisotopic="759.577824">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>760.5851</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.075649</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 36:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.5" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="777.53272399999992" neutral_mass_monoisotopic="777.53272399999992">
+      <precursor charge="1" precursor_mz="778.54" auto_manage_children="false" collision_energy="27.73998" ion_formula="[M+H]" neutral_mass_average="777.53272399999992" neutral_mass_monoisotopic="777.53272399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>778.54</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.73998</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 36:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.84" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="779.545724" neutral_mass_monoisotopic="779.545724">
+      <precursor charge="1" precursor_mz="780.553" auto_manage_children="false" collision_energy="27.814461" ion_formula="[M+H]" neutral_mass_average="779.545724" neutral_mass_monoisotopic="779.545724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>780.553</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.814461</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 36:4a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.91" explicit_retention_time_window="0.15" auto_manage_children="false" neutral_mass_average="781.56212399999993" neutral_mass_monoisotopic="781.56212399999993">
+      <precursor charge="1" precursor_mz="782.5694" auto_manage_children="false" collision_energy="27.889068" ion_formula="[M+H]" neutral_mass_average="781.56212399999993" neutral_mass_monoisotopic="781.56212399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>782.5694</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.889068</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 36:3a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.35" explicit_retention_time_window="0.05" auto_manage_children="false" neutral_mass_average="783.577824" neutral_mass_monoisotopic="783.577824">
+      <precursor charge="1" precursor_mz="784.5851" auto_manage_children="false" collision_energy="27.963649" ion_formula="[M+H]" neutral_mass_average="783.577824" neutral_mass_monoisotopic="783.577824">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>784.5851</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.963649</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 38:7" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.6" explicit_retention_time_window="0.05" auto_manage_children="false" neutral_mass_average="803.54272399999991" neutral_mass_monoisotopic="803.54272399999991">
+      <precursor charge="1" precursor_mz="804.55" auto_manage_children="false" collision_energy="28.70235" ion_formula="[M+H]" neutral_mass_average="803.54272399999991" neutral_mass_monoisotopic="803.54272399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>804.55</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.70235</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 38:6a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.87" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="805.56212399999993" neutral_mass_monoisotopic="805.56212399999993">
+      <precursor charge="1" precursor_mz="806.5694" auto_manage_children="false" collision_energy="28.777068" ion_formula="[M+H]" neutral_mass_average="805.56212399999993" neutral_mass_monoisotopic="805.56212399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>806.5694</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.777068</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 38:5a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.28" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="807.577824" neutral_mass_monoisotopic="807.577824">
+      <precursor charge="1" precursor_mz="808.5851" auto_manage_children="false" collision_energy="28.851649" ion_formula="[M+H]" neutral_mass_average="807.577824" neutral_mass_monoisotopic="807.577824">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>808.5851</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.851649</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 40:8" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.69" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="829.56212399999993" neutral_mass_monoisotopic="829.56212399999993">
+      <precursor charge="1" precursor_mz="830.5694" auto_manage_children="false" collision_energy="29.665068" ion_formula="[M+H]" neutral_mass_average="829.56212399999993" neutral_mass_monoisotopic="829.56212399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>830.5694</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.665068</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 40:7" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.13" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="831.56212399999993" neutral_mass_monoisotopic="831.56212399999993">
+      <precursor charge="1" precursor_mz="832.5694" auto_manage_children="false" collision_energy="29.739068" ion_formula="[M+H]" neutral_mass_average="831.56212399999993" neutral_mass_monoisotopic="831.56212399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>832.5694</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.739068</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 40:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.62" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="833.56212399999993" neutral_mass_monoisotopic="833.56212399999993">
+      <precursor charge="1" precursor_mz="834.5694" auto_manage_children="false" collision_energy="29.813068" ion_formula="[M+H]" neutral_mass_average="833.56212399999993" neutral_mass_monoisotopic="833.56212399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>834.5694</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.813068</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C15:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="4.77" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="688.5527239999999" neutral_mass_monoisotopic="688.5527239999999">
+      <precursor charge="1" precursor_mz="689.56" auto_manage_children="false" collision_energy="24.44772" ion_formula="[M+H]" neutral_mass_average="688.5527239999999" neutral_mass_monoisotopic="688.5527239999999">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>689.56</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>24.44772</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C16:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.08" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="702.562724" neutral_mass_monoisotopic="702.562724">
+      <precursor charge="1" precursor_mz="703.57" auto_manage_children="false" collision_energy="24.96609" ion_formula="[M+H]" neutral_mass_average="702.562724" neutral_mass_monoisotopic="702.562724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>703.57</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>24.96609</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="Dihydro SM C16:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.28" explicit_retention_time_window="0.15" auto_manage_children="false" neutral_mass_average="704.582724" neutral_mass_monoisotopic="704.582724">
+      <precursor charge="1" precursor_mz="705.59" auto_manage_children="false" collision_energy="25.04083" ion_formula="[M+H]" neutral_mass_average="704.582724" neutral_mass_monoisotopic="704.582724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>705.59</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>25.04083</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C17:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.32" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="716.582724" neutral_mass_monoisotopic="716.582724">
+      <precursor charge="1" precursor_mz="717.59" auto_manage_children="false" collision_energy="25.48483" ion_formula="[M+H]" neutral_mass_average="716.582724" neutral_mass_monoisotopic="716.582724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>717.59</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>25.48483</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C18:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.13" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="728.582724" neutral_mass_monoisotopic="728.582724">
+      <precursor charge="1" precursor_mz="729.59" auto_manage_children="false" collision_energy="25.92883" ion_formula="[M+H]" neutral_mass_average="728.582724" neutral_mass_monoisotopic="728.582724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>729.59</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>25.92883</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C18:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.61" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="730.602724" neutral_mass_monoisotopic="730.602724">
+      <precursor charge="1" precursor_mz="731.61" auto_manage_children="false" collision_energy="26.00357" ion_formula="[M+H]" neutral_mass_average="730.602724" neutral_mass_monoisotopic="730.602724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>731.61</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.00357</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C18:1 (d9)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.15" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="737.53272399999992" neutral_mass_monoisotopic="737.53272399999992">
+      <precursor charge="1" precursor_mz="738.54" auto_manage_children="false" collision_energy="26.25998" ion_formula="[M+H]" neutral_mass_average="737.53272399999992" neutral_mass_monoisotopic="737.53272399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>738.54</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.25998</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C20:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.67" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="756.63272399999994" neutral_mass_monoisotopic="756.63272399999994">
+      <precursor charge="1" precursor_mz="757.64" auto_manage_children="false" collision_energy="26.96668" ion_formula="[M+H]" neutral_mass_average="756.63272399999994" neutral_mass_monoisotopic="756.63272399999994">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>757.64</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.96668</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 30:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.41" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="691.52272399999993" neutral_mass_monoisotopic="691.52272399999993">
+      <precursor charge="1" precursor_mz="692.53" auto_manage_children="false" collision_energy="24.55761" ion_formula="[M+H]" neutral_mass_average="691.52272399999993" neutral_mass_monoisotopic="691.52272399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>692.53</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>24.55761</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCp 32:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.85" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="717.53272399999992" neutral_mass_monoisotopic="717.53272399999992">
+      <precursor charge="1" precursor_mz="718.54" auto_manage_children="false" collision_energy="25.51998" ion_formula="[M+H]" neutral_mass_average="717.53272399999992" neutral_mass_monoisotopic="717.53272399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>718.54</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>25.51998</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 32:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.91" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="719.53272399999992" neutral_mass_monoisotopic="719.53272399999992">
+      <precursor charge="1" precursor_mz="720.54" auto_manage_children="false" collision_energy="25.59398" ion_formula="[M+H]" neutral_mass_average="719.53272399999992" neutral_mass_monoisotopic="719.53272399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>720.54</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>25.59398</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCp 34:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.51" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="741.612724" neutral_mass_monoisotopic="741.612724">
+      <precursor charge="1" precursor_mz="742.62" auto_manage_children="false" collision_energy="26.41094" ion_formula="[M+H]" neutral_mass_average="741.612724" neutral_mass_monoisotopic="741.612724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>742.62</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.41094</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 34:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.62" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="743.612724" neutral_mass_monoisotopic="743.612724">
+      <precursor charge="1" precursor_mz="744.62" auto_manage_children="false" collision_energy="26.48494" ion_formula="[M+H]" neutral_mass_average="743.612724" neutral_mass_monoisotopic="743.612724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>744.62</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.48494</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 34:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.95" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="745.612724" neutral_mass_monoisotopic="745.612724">
+      <precursor charge="1" precursor_mz="746.62" auto_manage_children="false" collision_energy="26.55894" ion_formula="[M+H]" neutral_mass_average="745.612724" neutral_mass_monoisotopic="745.612724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>746.62</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.55894</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 36:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.2" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="765.562724" neutral_mass_monoisotopic="765.562724">
+      <precursor charge="1" precursor_mz="766.57" auto_manage_children="false" collision_energy="27.29709" ion_formula="[M+H]" neutral_mass_average="765.562724" neutral_mass_monoisotopic="765.562724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>766.57</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.29709</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 36:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.54" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="767.582724" neutral_mass_monoisotopic="767.582724">
+      <precursor charge="1" precursor_mz="768.59" auto_manage_children="false" collision_energy="27.37183" ion_formula="[M+H]" neutral_mass_average="767.582724" neutral_mass_monoisotopic="767.582724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>768.59</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.37183</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 36:3" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.75" explicit_retention_time_window="0.05" auto_manage_children="false" neutral_mass_average="769.602724" neutral_mass_monoisotopic="769.602724">
+      <precursor charge="1" precursor_mz="770.61" auto_manage_children="false" collision_energy="27.44657" ion_formula="[M+H]" neutral_mass_average="769.602724" neutral_mass_monoisotopic="769.602724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>770.61</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.44657</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 38:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.42" explicit_retention_time_window="0.05" auto_manage_children="false" neutral_mass_average="791.582724" neutral_mass_monoisotopic="791.582724">
+      <precursor charge="1" precursor_mz="792.59" auto_manage_children="false" collision_energy="28.25983" ion_formula="[M+H]" neutral_mass_average="791.582724" neutral_mass_monoisotopic="791.582724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>792.59</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.25983</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 38:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.58" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="793.602724" neutral_mass_monoisotopic="793.602724">
+      <precursor charge="1" precursor_mz="794.61" auto_manage_children="false" collision_energy="28.33457" ion_formula="[M+H]" neutral_mass_average="793.602724" neutral_mass_monoisotopic="793.602724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>794.61</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.33457</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 40:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.62" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="819.612724" neutral_mass_monoisotopic="819.612724">
+      <precursor charge="1" precursor_mz="820.62" auto_manage_children="false" collision_energy="29.29694" ion_formula="[M+H]" neutral_mass_average="819.612724" neutral_mass_monoisotopic="819.612724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>820.62</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.29694</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 34:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.64" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="699.520324" neutral_mass_monoisotopic="699.520324">
+      <precursor charge="1" precursor_mz="700.5276" auto_manage_children="false" collision_energy="24.853521" ion_formula="[M+H]" neutral_mass_average="699.520324" neutral_mass_monoisotopic="699.520324">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="364.20054857990942" neutral_mass_monoisotopic="364.20054857990942" product_charge="1">
+          <precursor_mz>700.5276</precursor_mz>
+          <product_mz>364.2</product_mz>
+          <collision_energy>24.853521</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 33:1 (d7)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.51" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="710.472724" neutral_mass_monoisotopic="710.472724">
+      <precursor charge="1" precursor_mz="711.48" auto_manage_children="false" collision_energy="25.25876" ion_formula="[M+H]" neutral_mass_average="710.472724" neutral_mass_monoisotopic="710.472724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="570.53864857990948" neutral_mass_monoisotopic="570.53864857990948" product_charge="1">
+          <precursor_mz>711.48</precursor_mz>
+          <product_mz>570.5381</product_mz>
+          <collision_energy>25.25876</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 34:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.4" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="715.515224" neutral_mass_monoisotopic="715.515224">
+      <precursor charge="1" precursor_mz="716.5225" auto_manage_children="false" collision_energy="25.445333" ion_formula="[M+H]" neutral_mass_average="715.515224" neutral_mass_monoisotopic="715.515224">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="575.52304857990953" neutral_mass_monoisotopic="575.52304857990953" product_charge="1">
+          <precursor_mz>716.5225</precursor_mz>
+          <product_mz>575.5225</product_mz>
+          <collision_energy>25.445333</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 36:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.23" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="721.502724" neutral_mass_monoisotopic="721.502724">
+      <precursor charge="1" precursor_mz="722.51" auto_manage_children="false" collision_energy="25.66687" ion_formula="[M+H]" neutral_mass_average="721.502724" neutral_mass_monoisotopic="721.502724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="364.20054857990942" neutral_mass_monoisotopic="364.20054857990942" product_charge="1">
+          <precursor_mz>722.51</precursor_mz>
+          <product_mz>364.2</product_mz>
+          <collision_energy>25.66687</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 36:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.57" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="723.520324" neutral_mass_monoisotopic="723.520324">
+      <precursor charge="1" precursor_mz="724.5276" auto_manage_children="false" collision_energy="25.741521" ion_formula="[M+H]" neutral_mass_average="723.520324" neutral_mass_monoisotopic="723.520324">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="364.20054857990942" neutral_mass_monoisotopic="364.20054857990942" product_charge="1">
+          <precursor_mz>724.5276</precursor_mz>
+          <product_mz>364.2</product_mz>
+          <collision_energy>25.741521</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 36:3" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.69" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="725.520324" neutral_mass_monoisotopic="725.520324">
+      <precursor charge="1" precursor_mz="726.5276" auto_manage_children="false" collision_energy="25.815521" ion_formula="[M+H]" neutral_mass_average="725.520324" neutral_mass_monoisotopic="725.520324">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="390.20054857990942" neutral_mass_monoisotopic="390.20054857990942" product_charge="1">
+          <precursor_mz>726.5276</precursor_mz>
+          <product_mz>390.2</product_mz>
+          <collision_energy>25.815521</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 36:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.33" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="739.515224" neutral_mass_monoisotopic="739.515224">
+      <precursor charge="1" precursor_mz="740.5225" auto_manage_children="false" collision_energy="26.333332" ion_formula="[M+H]" neutral_mass_average="739.515224" neutral_mass_monoisotopic="739.515224">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="599.52304857990953" neutral_mass_monoisotopic="599.52304857990953" product_charge="1">
+          <precursor_mz>740.5225</precursor_mz>
+          <product_mz>599.5225</product_mz>
+          <collision_energy>26.333332</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 36:3" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.44" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="741.53082399999994" neutral_mass_monoisotopic="741.53082399999994">
+      <precursor charge="1" precursor_mz="742.5381" auto_manage_children="false" collision_energy="26.40791" ion_formula="[M+H]" neutral_mass_average="741.53082399999994" neutral_mass_monoisotopic="741.53082399999994">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="601.53864857990948" neutral_mass_monoisotopic="601.53864857990948" product_charge="1">
+          <precursor_mz>742.5381</precursor_mz>
+          <product_mz>601.5381</product_mz>
+          <collision_energy>26.40791</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 38:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.43" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="747.520324" neutral_mass_monoisotopic="747.520324">
+      <precursor charge="1" precursor_mz="748.5276" auto_manage_children="false" collision_energy="26.629521" ion_formula="[M+H]" neutral_mass_average="747.520324" neutral_mass_monoisotopic="747.520324">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="364.20054857990942" neutral_mass_monoisotopic="364.20054857990942" product_charge="1">
+          <precursor_mz>748.5276</precursor_mz>
+          <product_mz>364.2</product_mz>
+          <collision_energy>26.629521</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 38:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.61" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="749.53592399999991" neutral_mass_monoisotopic="749.53592399999991">
+      <precursor charge="1" precursor_mz="750.5432" auto_manage_children="false" collision_energy="26.704098" ion_formula="[M+H]" neutral_mass_average="749.53592399999991" neutral_mass_monoisotopic="749.53592399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="390.20054857990942" neutral_mass_monoisotopic="390.20054857990942" product_charge="1">
+          <precursor_mz>750.5432</precursor_mz>
+          <product_mz>390.2</product_mz>
+          <collision_energy>26.704098</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 38:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.2" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="763.514924" neutral_mass_monoisotopic="763.514924">
+      <precursor charge="1" precursor_mz="764.5222" auto_manage_children="false" collision_energy="27.221321" ion_formula="[M+H]" neutral_mass_average="763.514924" neutral_mass_monoisotopic="763.514924">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="623.52304857990953" neutral_mass_monoisotopic="623.52304857990953" product_charge="1">
+          <precursor_mz>764.5222</precursor_mz>
+          <product_mz>623.5225</product_mz>
+          <collision_energy>27.221321</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 38:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.4" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="765.53082399999994" neutral_mass_monoisotopic="765.53082399999994">
+      <precursor charge="1" precursor_mz="766.5381" auto_manage_children="false" collision_energy="27.29591" ion_formula="[M+H]" neutral_mass_average="765.53082399999994" neutral_mass_monoisotopic="765.53082399999994">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="625.53864857990948" neutral_mass_monoisotopic="625.53864857990948" product_charge="1">
+          <precursor_mz>766.5381</precursor_mz>
+          <product_mz>625.5381</product_mz>
+          <collision_energy>27.29591</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 40:7" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.48" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="773.53592399999991" neutral_mass_monoisotopic="773.53592399999991">
+      <precursor charge="1" precursor_mz="774.5432" auto_manage_children="false" collision_energy="27.592098" ion_formula="[M+H]" neutral_mass_average="773.53592399999991" neutral_mass_monoisotopic="773.53592399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="390.20054857990942" neutral_mass_monoisotopic="390.20054857990942" product_charge="1">
+          <precursor_mz>774.5432</precursor_mz>
+          <product_mz>390.2</product_mz>
+          <collision_energy>27.592098</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 40:7" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.24" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="789.53082399999994" neutral_mass_monoisotopic="789.53082399999994">
+      <precursor charge="1" precursor_mz="790.5381" auto_manage_children="false" collision_energy="28.18391" ion_formula="[M+H]" neutral_mass_average="789.53082399999994" neutral_mass_monoisotopic="789.53082399999994">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="649.53864857990948" neutral_mass_monoisotopic="649.53864857990948" product_charge="1">
+          <precursor_mz>790.5381</precursor_mz>
+          <product_mz>649.5381</product_mz>
+          <collision_energy>28.18391</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 34:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.03" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="701.53592399999991" neutral_mass_monoisotopic="701.53592399999991">
+      <precursor charge="1" precursor_mz="702.5432" auto_manage_children="false" collision_energy="24.928098" ion_formula="[M+H]" neutral_mass_average="701.53592399999991" neutral_mass_monoisotopic="701.53592399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="364.20054857990942" neutral_mass_monoisotopic="364.20054857990942" product_charge="1">
+          <precursor_mz>702.5432</precursor_mz>
+          <product_mz>364.2</product_mz>
+          <collision_energy>24.928098</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 34:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.76" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="717.53082399999994" neutral_mass_monoisotopic="717.53082399999994">
+      <precursor charge="1" precursor_mz="718.5381" auto_manage_children="false" collision_energy="25.51991" ion_formula="[M+H]" neutral_mass_average="717.53082399999994" neutral_mass_monoisotopic="717.53082399999994">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="577.53864857990948" neutral_mass_monoisotopic="577.53864857990948" product_charge="1">
+          <precursor_mz>718.5381</precursor_mz>
+          <product_mz>577.5381</product_mz>
+          <collision_energy>25.51991</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 36:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.12" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="727.551624" neutral_mass_monoisotopic="727.551624">
+      <precursor charge="1" precursor_mz="728.5589" auto_manage_children="false" collision_energy="25.890679" ion_formula="[M+H]" neutral_mass_average="727.551624" neutral_mass_monoisotopic="727.551624">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="392.20054857990942" neutral_mass_monoisotopic="392.20054857990942" product_charge="1">
+          <precursor_mz>728.5589</precursor_mz>
+          <product_mz>392.2</product_mz>
+          <collision_energy>25.890679</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 36:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.45" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="729.5672239999999" neutral_mass_monoisotopic="729.5672239999999">
+      <precursor charge="1" precursor_mz="730.5745" auto_manage_children="false" collision_energy="25.965256" ion_formula="[M+H]" neutral_mass_average="729.5672239999999" neutral_mass_monoisotopic="729.5672239999999">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="392.20054857990942" neutral_mass_monoisotopic="392.20054857990942" product_charge="1">
+          <precursor_mz>730.5745</precursor_mz>
+          <product_mz>392.2</product_mz>
+          <collision_energy>25.965256</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEP 36:1 (d9)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.46" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="738.622724" neutral_mass_monoisotopic="738.622724">
+      <precursor charge="1" precursor_mz="739.63" auto_manage_children="false" collision_energy="26.30031" ion_formula="[M+H]" neutral_mass_average="738.622724" neutral_mass_monoisotopic="738.622724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="392.20054857990942" neutral_mass_monoisotopic="392.20054857990942" product_charge="1">
+          <precursor_mz>739.63</precursor_mz>
+          <product_mz>392.2</product_mz>
+          <collision_energy>26.30031</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 36:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.89" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="743.546524" neutral_mass_monoisotopic="743.546524">
+      <precursor charge="1" precursor_mz="744.5538" auto_manage_children="false" collision_energy="26.482491" ion_formula="[M+H]" neutral_mass_average="743.546524" neutral_mass_monoisotopic="743.546524">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="603.55434857990952" neutral_mass_monoisotopic="603.55434857990952" product_charge="1">
+          <precursor_mz>744.5538</precursor_mz>
+          <product_mz>603.5538</product_mz>
+          <collision_energy>26.482491</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 36:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.27" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="745.56212399999993" neutral_mass_monoisotopic="745.56212399999993">
+      <precursor charge="1" precursor_mz="746.5694" auto_manage_children="false" collision_energy="26.557068" ion_formula="[M+H]" neutral_mass_average="745.56212399999993" neutral_mass_monoisotopic="745.56212399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="605.56994857990946" neutral_mass_monoisotopic="605.56994857990946" product_charge="1">
+          <precursor_mz>746.5694</precursor_mz>
+          <product_mz>605.5694</product_mz>
+          <collision_energy>26.557068</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 38:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.05" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="751.550924" neutral_mass_monoisotopic="751.550924">
+      <precursor charge="1" precursor_mz="752.5582" auto_manage_children="false" collision_energy="26.778653" ion_formula="[M+H]" neutral_mass_average="751.550924" neutral_mass_monoisotopic="751.550924">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="392.20054857990942" neutral_mass_monoisotopic="392.20054857990942" product_charge="1">
+          <precursor_mz>752.5582</precursor_mz>
+          <product_mz>392.2</product_mz>
+          <collision_energy>26.778653</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 38:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.83" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="767.546524" neutral_mass_monoisotopic="767.546524">
+      <precursor charge="1" precursor_mz="768.5538" auto_manage_children="false" collision_energy="27.370491" ion_formula="[M+H]" neutral_mass_average="767.546524" neutral_mass_monoisotopic="767.546524">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="627.55434857990952" neutral_mass_monoisotopic="627.55434857990952" product_charge="1">
+          <precursor_mz>768.5538</precursor_mz>
+          <product_mz>627.5538</product_mz>
+          <collision_energy>27.370491</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 38:3" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.04" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="769.54272399999991" neutral_mass_monoisotopic="769.54272399999991">
+      <precursor charge="1" precursor_mz="770.55" auto_manage_children="false" collision_energy="27.44435" ion_formula="[M+H]" neutral_mass_average="769.54272399999991" neutral_mass_monoisotopic="769.54272399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="629.55054857990945" neutral_mass_monoisotopic="629.55054857990945" product_charge="1">
+          <precursor_mz>770.55</precursor_mz>
+          <product_mz>629.55</product_mz>
+          <collision_energy>27.44435</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 40:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.93" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="775.551624" neutral_mass_monoisotopic="775.551624">
+      <precursor charge="1" precursor_mz="776.5589" auto_manage_children="false" collision_energy="27.666679" ion_formula="[M+H]" neutral_mass_average="775.551624" neutral_mass_monoisotopic="775.551624">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="392.20054857990942" neutral_mass_monoisotopic="392.20054857990942" product_charge="1">
+          <precursor_mz>776.5589</precursor_mz>
+          <product_mz>392.2</product_mz>
+          <collision_energy>27.666679</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PEp 40:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.47" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="779.582724" neutral_mass_monoisotopic="779.582724">
+      <precursor charge="1" precursor_mz="780.59" auto_manage_children="false" collision_energy="27.81583" ion_formula="[M+H]" neutral_mass_average="779.582724" neutral_mass_monoisotopic="779.582724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="420.20054857990942" neutral_mass_monoisotopic="420.20054857990942" product_charge="1">
+          <precursor_mz>780.59</precursor_mz>
+          <product_mz>420.2</product_mz>
+          <collision_energy>27.81583</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 40:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.7" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="791.5459239999999" neutral_mass_monoisotopic="791.5459239999999">
+      <precursor charge="1" precursor_mz="792.5532" auto_manage_children="false" collision_energy="28.258468" ion_formula="[M+H]" neutral_mass_average="791.5459239999999" neutral_mass_monoisotopic="791.5459239999999">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="651.55434857990952" neutral_mass_monoisotopic="651.55434857990952" product_charge="1">
+          <precursor_mz>792.5532</precursor_mz>
+          <product_mz>651.5538</product_mz>
+          <collision_energy>28.258468</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PE 40:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.87" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="793.56212399999993" neutral_mass_monoisotopic="793.56212399999993">
+      <precursor charge="1" precursor_mz="794.5694" auto_manage_children="false" collision_energy="28.333068" ion_formula="[M+H]" neutral_mass_average="793.56212399999993" neutral_mass_monoisotopic="793.56212399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="653.56994857990946" neutral_mass_monoisotopic="653.56994857990946" product_charge="1">
+          <precursor_mz>794.5694</precursor_mz>
+          <product_mz>653.5694</product_mz>
+          <collision_energy>28.333068</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="Dihydro SM C18:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.83" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="732.612724" neutral_mass_monoisotopic="732.612724">
+      <precursor charge="1" precursor_mz="733.62" auto_manage_children="false" collision_energy="26.07794" ion_formula="[M+H]" neutral_mass_average="732.612724" neutral_mass_monoisotopic="732.612724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>733.62</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.07794</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C19:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.91" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="744.622724" neutral_mass_monoisotopic="744.622724">
+      <precursor charge="1" precursor_mz="745.63" auto_manage_children="false" collision_energy="26.52231" ion_formula="[M+H]" neutral_mass_average="744.622724" neutral_mass_monoisotopic="744.622724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>745.63</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.52231</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C20:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.12" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="758.63272399999994" neutral_mass_monoisotopic="758.63272399999994">
+      <precursor charge="1" precursor_mz="759.64" auto_manage_children="false" collision_energy="27.04068" ion_formula="[M+H]" neutral_mass_average="758.63272399999994" neutral_mass_monoisotopic="758.63272399999994">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>759.64</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.04068</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="Dihydro SM C20:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.28" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="760.64272399999993" neutral_mass_monoisotopic="760.64272399999993">
+      <precursor charge="1" precursor_mz="761.65" auto_manage_children="false" collision_energy="27.11505" ion_formula="[M+H]" neutral_mass_average="760.64272399999993" neutral_mass_monoisotopic="760.64272399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>761.65</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.11505</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C21:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.35" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="772.65272399999992" neutral_mass_monoisotopic="772.65272399999992">
+      <precursor charge="1" precursor_mz="773.66" auto_manage_children="false" collision_energy="27.55942" ion_formula="[M+H]" neutral_mass_average="772.65272399999992" neutral_mass_monoisotopic="772.65272399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>773.66</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.55942</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C22:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.71" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="782.63272399999994" neutral_mass_monoisotopic="782.63272399999994">
+      <precursor charge="1" precursor_mz="783.64" auto_manage_children="false" collision_energy="27.92868" ion_formula="[M+H]" neutral_mass_average="782.63272399999994" neutral_mass_monoisotopic="782.63272399999994">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>783.64</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.92868</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C22:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.18" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="784.64272399999993" neutral_mass_monoisotopic="784.64272399999993">
+      <precursor charge="1" precursor_mz="785.65" auto_manage_children="false" collision_energy="28.00305" ion_formula="[M+H]" neutral_mass_average="784.64272399999993" neutral_mass_monoisotopic="784.64272399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>785.65</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.00305</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C22:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.56" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="786.66272399999991" neutral_mass_monoisotopic="786.66272399999991">
+      <precursor charge="1" precursor_mz="787.67" auto_manage_children="false" collision_energy="28.07779" ion_formula="[M+H]" neutral_mass_average="786.66272399999991" neutral_mass_monoisotopic="786.66272399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>787.67</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.07779</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C23:1a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.31" explicit_retention_time_window="0.02" auto_manage_children="false" neutral_mass_average="798.6727239999999" neutral_mass_monoisotopic="798.6727239999999">
+      <precursor charge="1" precursor_mz="799.68" auto_manage_children="false" collision_energy="28.52216" ion_formula="[M+H]" neutral_mass_average="798.6727239999999" neutral_mass_monoisotopic="798.6727239999999">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>799.68</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.52216</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C24:3" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.77" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="808.66272399999991" neutral_mass_monoisotopic="808.66272399999991">
+      <precursor charge="1" precursor_mz="809.67" auto_manage_children="false" collision_energy="28.89179" ion_formula="[M+H]" neutral_mass_average="808.66272399999991" neutral_mass_monoisotopic="808.66272399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>809.67</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.89179</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C24:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.16" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="810.6727239999999" neutral_mass_monoisotopic="810.6727239999999">
+      <precursor charge="1" precursor_mz="811.68" auto_manage_children="false" collision_energy="28.96616" ion_formula="[M+H]" neutral_mass_average="810.6727239999999" neutral_mass_monoisotopic="810.6727239999999">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>811.68</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.96616</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C24:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.5" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="812.682724" neutral_mass_monoisotopic="812.682724">
+      <precursor charge="1" precursor_mz="813.69" auto_manage_children="false" collision_energy="29.04053" ion_formula="[M+H]" neutral_mass_average="812.682724" neutral_mass_monoisotopic="812.682724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>813.69</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.04053</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C26:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.58" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="838.702724" neutral_mass_monoisotopic="838.702724">
+      <precursor charge="1" precursor_mz="839.71" auto_manage_children="false" collision_energy="30.00327" ion_formula="[M+H]" neutral_mass_average="838.702724" neutral_mass_monoisotopic="838.702724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>839.71</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>30.00327</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 34:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.4" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="747.612724" neutral_mass_monoisotopic="747.612724">
+      <precursor charge="1" precursor_mz="748.62" auto_manage_children="false" collision_energy="26.63294" ion_formula="[M+H]" neutral_mass_average="747.612724" neutral_mass_monoisotopic="747.612724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>748.62</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>26.63294</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 36:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.1" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="771.612724" neutral_mass_monoisotopic="771.612724">
+      <precursor charge="1" precursor_mz="772.62" auto_manage_children="false" collision_energy="27.52094" ion_formula="[M+H]" neutral_mass_average="771.612724" neutral_mass_monoisotopic="771.612724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>772.62</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.52094</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 36:1a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.35" explicit_retention_time_window="0.04" auto_manage_children="false" neutral_mass_average="773.612724" neutral_mass_monoisotopic="773.612724">
+      <precursor charge="1" precursor_mz="774.62" auto_manage_children="false" collision_energy="27.59494" ion_formula="[M+H]" neutral_mass_average="773.612724" neutral_mass_monoisotopic="773.612724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>774.62</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.59494</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCP 36:1 (d9)" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.33" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="780.6727239999999" neutral_mass_monoisotopic="780.6727239999999">
+      <precursor charge="1" precursor_mz="781.68" auto_manage_children="false" collision_energy="27.85616" ion_formula="[M+H]" neutral_mass_average="780.6727239999999" neutral_mass_monoisotopic="780.6727239999999">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>781.68</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.85616</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 38:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.03" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="795.612724" neutral_mass_monoisotopic="795.612724">
+      <precursor charge="1" precursor_mz="796.62" auto_manage_children="false" collision_energy="28.40894" ion_formula="[M+H]" neutral_mass_average="795.612724" neutral_mass_monoisotopic="795.612724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>796.62</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.40894</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 38:3" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.22" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="797.63272399999994" neutral_mass_monoisotopic="797.63272399999994">
+      <precursor charge="1" precursor_mz="798.64" auto_manage_children="false" collision_energy="28.48368" ion_formula="[M+H]" neutral_mass_average="797.63272399999994" neutral_mass_monoisotopic="797.63272399999994">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>798.64</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.48368</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 38:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.39" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="799.64272399999993" neutral_mass_monoisotopic="799.64272399999993">
+      <precursor charge="1" precursor_mz="800.65" auto_manage_children="false" collision_energy="28.55805" ion_formula="[M+H]" neutral_mass_average="799.64272399999993" neutral_mass_monoisotopic="799.64272399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>800.65</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.55805</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 40:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.03" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="821.602724" neutral_mass_monoisotopic="821.602724">
+      <precursor charge="1" precursor_mz="822.61" auto_manage_children="false" collision_energy="29.37057" ion_formula="[M+H]" neutral_mass_average="821.602724" neutral_mass_monoisotopic="821.602724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>822.61</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.37057</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 40:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.44" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="823.612724" neutral_mass_monoisotopic="823.612724">
+      <precursor charge="1" precursor_mz="824.62" auto_manage_children="false" collision_energy="29.44494" ion_formula="[M+H]" neutral_mass_average="823.612724" neutral_mass_monoisotopic="823.612724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>824.62</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.44494</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 40:3" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.5" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="825.63272399999994" neutral_mass_monoisotopic="825.63272399999994">
+      <precursor charge="1" precursor_mz="826.64" auto_manage_children="false" collision_energy="29.51968" ion_formula="[M+H]" neutral_mass_average="825.63272399999994" neutral_mass_monoisotopic="825.63272399999994">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>826.64</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.51968</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 42:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.09" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="847.63272399999994" neutral_mass_monoisotopic="847.63272399999994">
+      <precursor charge="1" precursor_mz="848.64" auto_manage_children="false" collision_energy="30.33368" ion_formula="[M+H]" neutral_mass_average="847.63272399999994" neutral_mass_monoisotopic="847.63272399999994">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>848.64</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>30.33368</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 42:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.42" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="849.63272399999994" neutral_mass_monoisotopic="849.63272399999994">
+      <precursor charge="1" precursor_mz="850.64" auto_manage_children="false" collision_energy="30.40768" ion_formula="[M+H]" neutral_mass_average="849.63272399999994" neutral_mass_monoisotopic="849.63272399999994">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>850.64</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>30.40768</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 44:6" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.47" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="875.64272399999993" neutral_mass_monoisotopic="875.64272399999993">
+      <precursor charge="1" precursor_mz="876.65" auto_manage_children="false" collision_energy="31.37005" ion_formula="[M+H]" neutral_mass_average="875.64272399999993" neutral_mass_monoisotopic="875.64272399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>876.65</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>31.37005</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 34:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.13" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="761.59342399999991" neutral_mass_monoisotopic="761.59342399999991">
+      <precursor charge="1" precursor_mz="762.6007" auto_manage_children="false" collision_energy="27.150226" ion_formula="[M+H]" neutral_mass_average="761.59342399999991" neutral_mass_monoisotopic="761.59342399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>762.6007</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.150226</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 36:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.78" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="785.59342399999991" neutral_mass_monoisotopic="785.59342399999991">
+      <precursor charge="1" precursor_mz="786.6007" auto_manage_children="false" collision_energy="28.038226" ion_formula="[M+H]" neutral_mass_average="785.59342399999991" neutral_mass_monoisotopic="785.59342399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>786.6007</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.038226</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 36:1a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.17" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="787.609124" neutral_mass_monoisotopic="787.609124">
+      <precursor charge="1" precursor_mz="788.6164" auto_manage_children="false" collision_energy="28.112807" ion_formula="[M+H]" neutral_mass_average="787.609124" neutral_mass_monoisotopic="787.609124">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>788.6164</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.112807</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 36:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.7" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="789.622724" neutral_mass_monoisotopic="789.622724">
+      <precursor charge="1" precursor_mz="790.63" auto_manage_children="false" collision_energy="28.18731" ion_formula="[M+H]" neutral_mass_average="789.622724" neutral_mass_monoisotopic="789.622724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>790.63</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.18731</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 38:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.72" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="809.59342399999991" neutral_mass_monoisotopic="809.59342399999991">
+      <precursor charge="1" precursor_mz="810.6007" auto_manage_children="false" collision_energy="28.926226" ion_formula="[M+H]" neutral_mass_average="809.59342399999991" neutral_mass_monoisotopic="809.59342399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>810.6007</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.926226</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 38:3a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.95" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="811.59342399999991" neutral_mass_monoisotopic="811.59342399999991">
+      <precursor charge="1" precursor_mz="812.6007" auto_manage_children="false" collision_energy="29.000226" ion_formula="[M+H]" neutral_mass_average="811.59342399999991" neutral_mass_monoisotopic="811.59342399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>812.6007</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.000226</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 38:2a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.23" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="813.59342399999991" neutral_mass_monoisotopic="813.59342399999991">
+      <precursor charge="1" precursor_mz="814.6007" auto_manage_children="false" collision_energy="29.074226" ion_formula="[M+H]" neutral_mass_average="813.59342399999991" neutral_mass_monoisotopic="813.59342399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>814.6007</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.074226</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 38:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.94" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="817.66272399999991" neutral_mass_monoisotopic="817.66272399999991">
+      <precursor charge="1" precursor_mz="818.67" auto_manage_children="false" collision_energy="29.22479" ion_formula="[M+H]" neutral_mass_average="817.66272399999991" neutral_mass_monoisotopic="817.66272399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>818.67</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.22479</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 40:5a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="5.77" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="835.56212399999993" neutral_mass_monoisotopic="835.56212399999993">
+      <precursor charge="1" precursor_mz="836.5694" auto_manage_children="false" collision_energy="29.887068" ion_formula="[M+H]" neutral_mass_average="835.56212399999993" neutral_mass_monoisotopic="835.56212399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>836.5694</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.887068</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 40:4a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.08" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="837.562724" neutral_mass_monoisotopic="837.562724">
+      <precursor charge="1" precursor_mz="838.57" auto_manage_children="false" collision_energy="29.96109" ion_formula="[M+H]" neutral_mass_average="837.562724" neutral_mass_monoisotopic="837.562724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>838.57</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.96109</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 40:3ab" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.58" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="839.562724" neutral_mass_monoisotopic="839.562724">
+      <precursor charge="1" precursor_mz="840.57" auto_manage_children="false" collision_energy="30.03509" ion_formula="[M+H]" neutral_mass_average="839.562724" neutral_mass_monoisotopic="839.562724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>840.57</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>30.03509</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PC 40:2" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.67" explicit_retention_time_window="0.05" auto_manage_children="false" neutral_mass_average="841.65272399999992" neutral_mass_monoisotopic="841.65272399999992">
+      <precursor charge="1" precursor_mz="842.66" auto_manage_children="false" collision_energy="30.11242" ion_formula="[M+H]" neutral_mass_average="841.65272399999992" neutral_mass_monoisotopic="841.65272399999992">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>842.66</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>30.11242</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 36:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.77" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="775.612724" neutral_mass_monoisotopic="775.612724">
+      <precursor charge="1" precursor_mz="776.62" auto_manage_children="false" collision_energy="27.66894" ion_formula="[M+H]" neutral_mass_average="775.612724" neutral_mass_monoisotopic="775.612724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>776.62</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>27.66894</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 38:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.72" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="801.66272399999991" neutral_mass_monoisotopic="801.66272399999991">
+      <precursor charge="1" precursor_mz="802.67" auto_manage_children="false" collision_energy="28.63279" ion_formula="[M+H]" neutral_mass_average="801.66272399999991" neutral_mass_monoisotopic="801.66272399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>802.67</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.63279</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 42:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.55" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="851.64272399999993" neutral_mass_monoisotopic="851.64272399999993">
+      <precursor charge="1" precursor_mz="852.65" auto_manage_children="false" collision_energy="30.48205" ion_formula="[M+H]" neutral_mass_average="851.64272399999993" neutral_mass_monoisotopic="851.64272399999993">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>852.65</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>30.48205</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 42:3" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.84" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="853.66272399999991" neutral_mass_monoisotopic="853.66272399999991">
+      <precursor charge="1" precursor_mz="854.67" auto_manage_children="false" collision_energy="30.55679" ion_formula="[M+H]" neutral_mass_average="853.66272399999991" neutral_mass_monoisotopic="853.66272399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>854.67</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>30.55679</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 42:2a" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="7.16" explicit_retention_time_window="0.05" auto_manage_children="false" neutral_mass_average="855.6727239999999" neutral_mass_monoisotopic="855.6727239999999">
+      <precursor charge="1" precursor_mz="856.68" auto_manage_children="false" collision_energy="30.63116" ion_formula="[M+H]" neutral_mass_average="855.6727239999999" neutral_mass_monoisotopic="855.6727239999999">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>856.68</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>30.63116</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 44:5" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.79" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="877.66272399999991" neutral_mass_monoisotopic="877.66272399999991">
+      <precursor charge="1" precursor_mz="878.67" auto_manage_children="false" collision_energy="31.44479" ion_formula="[M+H]" neutral_mass_average="877.66272399999991" neutral_mass_monoisotopic="877.66272399999991">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>878.67</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>31.44479</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCe 44:4" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="7.19" explicit_retention_time_window="0.1" auto_manage_children="false" neutral_mass_average="879.6727239999999" neutral_mass_monoisotopic="879.6727239999999">
+      <precursor charge="1" precursor_mz="880.68" auto_manage_children="false" collision_energy="31.51916" ion_formula="[M+H]" neutral_mass_average="879.6727239999999" neutral_mass_monoisotopic="879.6727239999999">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>880.68</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>31.51916</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="Dihydro SM C22:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.7" explicit_retention_time_window="0.08" auto_manage_children="false" neutral_mass_average="788.6727239999999" neutral_mass_monoisotopic="788.6727239999999">
+      <precursor charge="1" precursor_mz="789.68" auto_manage_children="false" collision_energy="28.15216" ion_formula="[M+H]" neutral_mass_average="788.6727239999999" neutral_mass_monoisotopic="788.6727239999999">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>789.68</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.15216</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C23:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.72" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="800.682724" neutral_mass_monoisotopic="800.682724">
+      <precursor charge="1" precursor_mz="801.69" auto_manage_children="false" collision_energy="28.59653" ion_formula="[M+H]" neutral_mass_average="800.682724" neutral_mass_monoisotopic="800.682724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>801.69</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>28.59653</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C24:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.93" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="814.692724" neutral_mass_monoisotopic="814.692724">
+      <precursor charge="1" precursor_mz="815.7" auto_manage_children="false" collision_energy="29.1149" ion_formula="[M+H]" neutral_mass_average="814.692724" neutral_mass_monoisotopic="814.692724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>815.7</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.1149</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="Dihydro SM C24:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="7.07" explicit_retention_time_window="0.08" auto_manage_children="false" neutral_mass_average="816.712724" neutral_mass_monoisotopic="816.712724">
+      <precursor charge="1" precursor_mz="817.72" auto_manage_children="false" collision_energy="29.18964" ion_formula="[M+H]" neutral_mass_average="816.712724" neutral_mass_monoisotopic="816.712724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>817.72</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>29.18964</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C26:1" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="6.93" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="840.712724" neutral_mass_monoisotopic="840.712724">
+      <precursor charge="1" precursor_mz="841.72" auto_manage_children="false" collision_energy="30.07764" ion_formula="[M+H]" neutral_mass_average="840.712724" neutral_mass_monoisotopic="840.712724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>841.72</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>30.07764</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="SM C26:0" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule explicit_retention_time="7.29" explicit_retention_time_window="0.2" auto_manage_children="false" neutral_mass_average="842.722724" neutral_mass_monoisotopic="842.722724">
+      <precursor charge="1" precursor_mz="843.73" auto_manage_children="false" collision_energy="30.15201" ion_formula="[M+H]" neutral_mass_average="842.722724" neutral_mass_monoisotopic="842.722724">
+        <transition fragment_type="custom" ion_formula="[M+]" neutral_mass_average="184.07054857990946" neutral_mass_monoisotopic="184.07054857990946" product_charge="1">
+          <precursor_mz>843.73</precursor_mz>
+          <product_mz>184.07</product_mz>
+          <collision_energy>30.15201</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+</srm_settings>
