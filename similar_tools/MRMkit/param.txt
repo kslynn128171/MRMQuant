@@ -1,0 +1,15 @@
+# location of .mzML files
+mzML_files = 'samples/*.mzML'
+
+batch_info ='batch_info.tsv'
+
+# estimated peak width in seconds
+peak_width = 3.0
+
+
+transition_list='method_new.tsv'
+
+batch_correction = true
+
+# control smoothness of correction (larger value => smoother curve)
+smoothing_sigma = 10.0
