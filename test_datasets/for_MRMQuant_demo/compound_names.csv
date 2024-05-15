@@ -1,0 +1,66 @@
+Group,Compound name,Abbr.
+FreeBA,Ursocholanic Acid,BA01
+FreeBA,5-Cholenic Acid-3£]-ol,BA03
+FreeBA,3-Ketocholanic acid,BA04
+FreeBA,Lithocholic acid,BA05
+FreeBA,Isolithocholic acid,BA06
+FreeBA,"3a,12a, 23-Nordeoxycholic acid",BA09
+FreeBA,"9(11), (5£])-Cholenic Acid-3£\-ol-12-one",BA10
+FreeBA,"3,7-Diketocholanic Acid",BA12
+FreeBA,5£]-Cholenic Acid-7£\-ol-3-one,BA16
+FreeBA,5£\-Cholanic Acid-3£\-ol-6-one,BA17
+FreeBA,3£\-hydroxy-7 ketolithocholic acid,BA18
+FreeBA,3£\-hydroxy-12 ketolithocholic acid,BA19
+FreeBA,Murocholic acid,BA20
+FreeBA,Isodeoxycholic acid,BA21
+FreeBA,"5£]-Cholanic Acid-3£], 12£\-diol",BA22
+FreeBA,Deoxycholic acid,BA23
+FreeBA,Chenodeoxycholic acid,BA24
+FreeBA,Hyodeoxycholic acid,BA25
+FreeBA,"3,7,12 Dehydrocholic acid",BA26
+FreeBA,"3£\-hydroxy-6,7-Diketocholanic acid",BA28
+FreeBA,"5£]-Cholanic acid-3£\, 6£\-diol-7-one",BA29
+FreeBA,3-Dehydrocholic acid,BA30
+FreeBA,Ursodeoxycholic acid,BA32
+FreeBA,£]-Muricholic acid,BA34
+FreeBA,Cholic acid,BA35
+FreeBA,Hyocholic acid,BA36
+FreeBA,alpha-Muricholic acid,BA37
+FreeBA,Ursocholic acid,BMRC20
+FreeBA,Deoxycholic Acid-d6,IS64
+GlycoBA,Glycolithocholic acid,BA39
+GlycoBA,Glycohyodeoxycholic acid,BA40
+GlycoBA,Glycochenodeoxycholic acid,BA41
+GlycoBA,Glycodeoxycholic acid,BA42
+GlycoBA,Glycoursodeoxycholic acid,BA43
+GlycoBA,"3,7,12- Glycodehydrocholic acid",BA44
+GlycoBA,Glycocholic acid,BA46
+GlycoBA,Glycohyocholic acid,BA49
+GlycoBA,Glycocholic Acid-d4,IS71
+TauroBA,Tauro-ursocholanic Acid,BA47
+TauroBA,Taurolithocholic acid,BA48
+TauroBA,Tauro-ursodeoxycholic acid,BA50
+TauroBA,Taurohyodeoxycholic acid,BA51
+TauroBA,Taurochenodeoxycholic acid,BA52
+TauroBA,Taurodeoxycholic acid,BA53
+TauroBA,"3,7,12 Taurodehydrocholic acid",BA54
+TauroBA,Taurohyocholic acid sodium salt,BA55
+TauroBA,Tauro alpha-Muricholic acid sodium salt,BA57
+TauroBA,Taurocholic acid,BA59
+TauroBA,Taurochenodeoxycholic Acid-d4,IS73
+freeBA-sulfate,lithocholic acid-3-sulfate,BA64
+freeBA-sulfate,chenodeoxycholic acid-3-sulfate,BA75
+freeBA-sulfate,Ursodeoxycholic acid-3-sulfate,BA77
+freeBA-sulfate,Deoxycholic acid-3-sulfate,BA78
+freeBA-sulfate,cholic acid-3-sulfate,BA87
+GlycoBA-sulfate,Glycolithocholic acid-3-sulfate,BA89
+GlycoBA-sulfate,Glycoursodeoxycholic acid-3-sulfate,BA90
+GlycoBA-sulfate,Glycochenodeoxychlolic acid-3-sulfate,BA92
+GlycoBA-sulfate,Glycodeoxycholic acid-3-sulfate,BA93
+GlycoBA-sulfate,Glycocholic acid-3-sulfate,BA94
+TauroBA-sulfate,Taurolithocholic acid-3-sulfate,BA96
+TauroBA-sulfate,Tauroursodeoxycholic acid-3-sulfate,BA97
+TauroBA-sulfate,Taurochenodeoxycholic acid-3-sulfate,BA99
+TauroBA-sulfate,Taurodeoxycholic acid-3-sulfate,BA100
+TauroBA-sulfate,Taurocholic acid-3-sulfate,BA105
+,,
