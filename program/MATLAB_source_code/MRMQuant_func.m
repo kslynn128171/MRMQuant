@@ -921,7 +921,7 @@ function filelist=browse_test_folder(~,~,hdlrec,hdldirinfo)
     else % Use some files in a folder. Ask user to specify files in a folder.
         [filelist,newpath] = uigetfile({'*.mzml;*.txt';'*.mzml';'*.txt'},...
             'Select MRM files for quantitation',filepath,'MultiSelect','on');
-        if filelist == 0
+        if ~iscell(filelist)
             return
         end
     end
