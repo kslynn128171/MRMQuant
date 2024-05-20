@@ -1261,7 +1261,7 @@ function plot_TIC(~,~)
     % find number of sample files and the selected file
     lhdl=findobj('Tag','list_file');
     idx=lhdl.Value;
-    textid=findobj('Tag','txt_peak');
+    textid=findobj('Tag','txt_peak'); % show compound info in TIC
     quant_state=lower(get(findobj('Tag','PB_quant'),'UserData'));
     % load standard compound info
     method=get(findobj('Tag','pl_comp'),'UserData');
@@ -1838,27 +1838,28 @@ function generate_title(fileid,EICid,peakid,filename,hdlax,hdlrec,hdlmeth,hdlpar
     method=hdlmeth.UserData;
     para=hdlpara.UserData;
     peaknum=length(method.rt{EICid});
+    compid=find((method.EICidx(:,2)==EICid) & (method.EICidx(:,3)==peakid));
     try
         if isempty(rec{fileid}.is_peak) % quantitation has NOT been performed
             if peaknum==1 % only one compound in a EIC 
                 th=title(hdlax,['EIC of File: ',filename,' (Q1:',num2str(rec{fileid}.mz{EICid}(1)),...
-                    ', Q3:', num2str(rec{fileid}.mz{EICid}(2)),') Compound: ',method.orig_name{EICid},' at ',...
+                    ', Q3:', num2str(rec{fileid}.mz{EICid}(2)),') Compound #', num2str(compid),': ',method.orig_name{EICid},' at ',...
                     num2str(method.rt{EICid}(1))], 'Interpreter', 'none');
             else 
-                th=title(hdlax,['EIC of File: ',filename,'  Compound: ',method.orig_name{EICid},'(Q1:',num2str(rec{fileid}.mz{EICid}(1)),...
+                th=title(hdlax,['EIC of File: ',filename,'  Compound #', num2str(compid),': ',method.orig_name{EICid},'(Q1:',num2str(rec{fileid}.mz{EICid}(1)),...
                     ', Q3:', num2str(rec{fileid}.mz{EICid}(2)),') at multiple locations'], 'Interpreter', 'none');
             end
         else
             if para.abs_stc || para.abs_int % absolute quantitation via standard curve or internal standard 
                 th=title(hdlax,{['EIC of File: ',filename,'(Q1:',num2str(rec{fileid}.mz{EICid}(1)),...
-                    ', Q3:', num2str(rec{fileid}.mz{EICid}(2)),') Compound: ',method.orig_name{EICid},' at ',...
+                    ', Q3:', num2str(rec{fileid}.mz{EICid}(2)),') Compound #', num2str(compid),': ',method.orig_name{EICid},' at ',...
                     num2str(method.rt{EICid}(peakid))],[' Abundance: ',num2str(rec{fileid}.abundance{EICid}(peakid),'%.2e'),...
                     ', Concentration: ',num2str(rec{fileid}.conc_org{EICid}(peakid),'%.2e'),...
                     ', Normalized Concentration: ',num2str(rec{fileid}.concentration{EICid}(peakid),'%.2e')]},...
                     'Interpreter', 'none');
             else % relative quantitation
                 th=title(hdlax,{['EIC of File: ',filename,'(Q1:',num2str(rec{fileid}.mz{EICid}(1)),...
-                    ', Q3:', num2str(rec{fileid}.mz{EICid}(2)),') Compound: ',method.orig_name{EICid},' at ',...
+                    ', Q3:', num2str(rec{fileid}.mz{EICid}(2)),') Compound #', num2str(compid),': ',method.orig_name{EICid},' at ',...
                     num2str(method.rt{EICid}(peakid))],[' Abundance: ',num2str(rec{fileid}.abundance{EICid}(peakid),'%.2e'),...
                     ', Normalized Abundance: ',num2str(rec{fileid}.concentration{EICid}(peakid),'%.2e')]},...
                     'Interpreter', 'none');
@@ -2748,7 +2749,7 @@ function peak_quantitation_file(~,~,index,target,hdlrec,hdlmeth,hdlpara,hdlastc,
         rec{index}.conc_org{i}=-1*ones(nop,1);
         rec{index}.concentration{i}=-1*ones(nop,1);
         rec{index}.quant_note{i}=zeros(nop,1);
-        if matchid(i)==0,continue;end
+        if matchid(i)==0,continue;end % problematic EIC
         % determine the background intensity
         if bi_auto_detect % if the background is set to be determined automatically
             rec{index}.bg_int{i}=repmat(prctile(rec{index}.data{i}(:,2),30),dlen,1);
@@ -2801,13 +2802,20 @@ function peak_quantitation_file(~,~,index,target,hdlrec,hdlmeth,hdlpara,hdlastc,
         sdata(sdata<0)=0;
         % record the smoothed signal
         rec{index}.smoothy{i}=sdata;
-        if method.rt{i}==-1
+        if method.rt{i}==-1 % No RT info in the method for this compound
             rec{index}.abundance{i}=0;
             continue;
         end
         if isempty(LOCS) % no peak is found.
             rec{index}.abundance{i}=zeros(nop,1);
             rec{index}.quant_note{i}=ones(nop,1); % no qualified peaks
+            rec{index}.is_match_std{i}=false(nop,1);
+            for j=1:nop 
+                diff=abs(rec{index}.data{i}(:,1)-method.rt{i}(j));
+                [~,minidx]=min(diff);
+                rec{index}.is_peak{i}(minidx,j)=true; % record the peak tip
+                rec{index}.bdp{i}(j,:)=[0 0]; % record the bound indices
+            end
             continue;
         end
         % remove peaks detected close to both ends of the chromatogram to
@@ -2828,11 +2836,25 @@ function peak_quantitation_file(~,~,index,target,hdlrec,hdlmeth,hdlpara,hdlastc,
         catch % the peak is problematic
             rec{index}.abundance{i}=zeros(nop,1);
             rec{index}.quant_note{i}=ones(nop,1); % no qualified peaks
+            rec{index}.is_match_std{i}=false(nop,1);
+            for j=1:nop 
+                diff=abs(rec{index}.data{i}(:,1)-method.rt{i}(j));
+                [~,minidx]=min(diff);
+                rec{index}.is_peak{i}(minidx,j)=true; % record the peak tip
+                rec{index}.bdp{i}(j,:)=[0 0]; % record the bound indices
+            end
             continue;
         end
         if all(idx==-1) % the peak is problematic
             rec{index}.abundance{i}=zeros(nop,1);
             rec{index}.quant_note{i}=ones(nop,1); % no qualified peaks
+            rec{index}.is_match_std{i}=false(nop,1);
+            for j=1:nop 
+                diff=abs(rec{index}.data{i}(:,1)-method.rt{i}(j));
+                [~,minidx]=min(diff);
+                rec{index}.is_peak{i}(minidx,j)=true; % record the peak tip
+                rec{index}.bdp{i}(j,:)=[0 0]; % record the bound indices
+            end
             continue;
         end
         didx=zeros(size(idx));
@@ -2867,6 +2889,11 @@ function peak_quantitation_file(~,~,index,target,hdlrec,hdlmeth,hdlpara,hdlastc,
             if c1 && c2 % the peak is not qualified and thus is to be ignored 
                 rec{index}.abundance{i}(j)=0;
                 rec{index}.quant_note{i}(j)=1; % no qualified peaks
+                rec{index}.is_match_std{i}(j)=false;
+                diff=abs(rec{index}.data{i}(:,1)-method.rt{i}(j));
+                [~,minidx]=min(diff);
+                rec{index}.is_peak{i}(minidx,j)=true; % record the peak tip
+                rec{index}.bdp{i}(j,:)=[0 0]; % record the bound indices
                 continue;
             end
             % record the peak tip
@@ -4806,6 +4833,7 @@ function clear_existing_results()
     show_quantitation_message('','',0,findobj('Tag','pl_para'));
     set(findobj('Tag','tbl_comp_list'),'Data',[]); % clear compound list
     set(findobj('Tag','cb_normal'),'UserData',1);% set the batch effect correction to on
+    set(findobj('Tag','AX_TIC_plot'),'UserData',0); % clear current file index
     % clear previous quantitation results
     rec=mainwin.UserData;
     if ~isempty(rec)
@@ -7197,7 +7225,9 @@ function load_quantitation_result(~,~,hdlrec,hdlmeth,hdlastc,hdlpara)
         % close EIC inspection window
         fig=findobj('Tag','fg_EIC');
         set(fig,'Visible','off','Hittest','off');
+        f = waitbar(0,'Please wait for the data to be loaded!');
         var=load([path,file]); 
+        waitbar(0.75,f,'Updating controls ...');
         hdlrec.UserData=var.result;
         method=var.method;
         hdlmeth.UserData=method;
@@ -7236,6 +7266,7 @@ function load_quantitation_result(~,~,hdlrec,hdlmeth,hdlastc,hdlpara)
         alpha=ones(fileno,method.nocomp);
         ax.UserData=cmtx;
         cla(ax);
+        waitbar(0.8,f,'Drawing Heatmap...');
         im=imagesc(ax,cmtx(:,:,1),'AlphaData',alpha,'UserData',alpha,...
             'Tag','im_heatmap','ButtonDownFcn',{@heat_map_selection,ax});
         ax.XTick=1:method.nocomp;
@@ -7252,6 +7283,7 @@ function load_quantitation_result(~,~,hdlrec,hdlmeth,hdlastc,hdlpara)
         ax.TickLabelInterpreter='none';
         colorbar(ax);
         % plot the TIC plot
+        waitbar(0.9,f,'Drawing TIC...');
         change_plot('','','TIC');%plot_TIC();
         % plot heat map
         for i=1:length(var.filelist)
@@ -7264,6 +7296,7 @@ function load_quantitation_result(~,~,hdlrec,hdlmeth,hdlastc,hdlpara)
                 return;
             end
         end
+        waitbar(0.95,f,'Updating Heatmap...');
         change_plot('','','HeatMap');
         show_grid('','',ax,hdlpara);
         set(findobj('Tag','SL_plot_v'),'UserData',[length(var.result) var.para.file_num]);
@@ -7272,6 +7305,7 @@ function load_quantitation_result(~,~,hdlrec,hdlmeth,hdlastc,hdlpara)
         reset_view_compound_num('','',ax,hdlpara);
         % show compound info in heatmap
         set(hdlrec,'WindowButtonMotionFcn',@cursorPos,'WindowKeyPressFcn',@KeyDirect);
+        close(f);
     end
 end
 % ----------------------------------------------------------
@@ -8096,42 +8130,73 @@ function show_more_compound(hobj,~,pl_cur_comp,pl_more_comp,hdlrec,hdlmeth,fhdl)
             end
             overhdl=findobj('tag','ax_overlap');
             set(overhdl,'nextplot','add');
+            phdl=findobj('tag','comp_overlap'); % get the IDs of the curves
             for i=1:nof
                 orgx=result{i}.data{EICid}(:,1);
                 orgy=result{i}.data{EICid}(:,2);
                 decy=result{i}.decomp{EICid}(:,peakid);
-                phdl=findobj('tag',['comp_overlap',num2str(i)]);
                 if any(decy) % if deconvolution signal exists, show the signal
                     if isempty(phdl)
-                        phdl=line(overhdl,orgx(decy>0),decy(decy>0),'tag',['comp_overlap',num2str(i)]);
+                       line(overhdl,orgx(decy>0),decy(decy>0),'tag','comp_overlap');
                     else
-                        set(phdl,'XData',orgx(decy>0),'YData',decy(decy>0),'Visible','on','Linewidth',0.5);
+                        set(phdl(i),'XData',orgx(decy>0),'YData',decy(decy>0));
                     end
                 else % no deconvolution signal exists, show the original peak signal
-                    if ~isempty(result{i}.is_compound{EICid}(:,peakid)) % if a peak is detected
+                    if any(result{i}.is_compound{EICid}(:,peakid)) % if a peak is detected
                         if isempty(phdl)
-                            phdl=line(overhdl,orgx(result{i}.is_compound{EICid}(:,peakid)),orgy(result{i}.is_compound{EICid}(:,peakid)),...
-                                'tag',['comp_overlap',num2str(i)]);
+                            line(overhdl,orgx(result{i}.is_compound{EICid}(:,peakid)),...
+                                orgy(result{i}.is_compound{EICid}(:,peakid)),'tag','comp_overlap');
                         else
-                            set(phdl,'XData',orgx(result{i}.is_compound{EICid}(:,peakid)),...
-                                'YData',orgy(result{i}.is_compound{EICid}(:,peakid)),'Visible','on','Linewidth',0.5);
+                            set(phdl(i),'XData',orgx(result{i}.is_compound{EICid}(:,peakid)),...
+                                'YData',orgy(result{i}.is_compound{EICid}(:,peakid)));
                         end
                     else % no peak is detected
                         if isempty(phdl)
-                            phdl=line(overhdl,orgx(result{i}.is_peak{EICid}(:,peakid)),orgy(result{i}.is_peak{EICid}(:,peakid)),...
-                                'tag',['comp_overlap',num2str(i)],'Visible','off');
+                            line(overhdl,orgx(result{i}.is_peak{EICid}(:,peakid)),...
+                                orgy(result{i}.is_peak{EICid}(:,peakid)),'tag','comp_overlap');
                         else
-                            set(phdl,'Visible','off','Linewidth',0.5);
+                            set(phdl,'XData',orgx(result{i}.is_peak{EICid}(:,peakid)),...
+                                'YData',orgy(result{i}.is_peak{EICid}(:,peakid)));
                         end
                     end
                 end
-                if i==fileid
-                    set(phdl,'Linewidth',3);
-                end
             end
+            axis(overhdl,'tight')
+            % draw the compound in the current sample with a wider line
+            hdlcur=findobj('Tag','cur_curve');
+            orgx=result{fileid}.data{EICid}(:,1);
+            orgy=result{fileid}.data{EICid}(:,2);
+            decy=result{fileid}.decomp{EICid}(:,peakid);
+            if any(decy) % if deconvolution signal exists, draw the deconvolution signal
+                if isempty(hdlcur)
+                    line(overhdl,orgx(decy>0),decy(decy>0),'Color','r',...
+                        'LineWidth',2,'Tag','cur_curve');
+                else
+                    set(hdlcur,'XData',orgx(decy>0),'YData',decy(decy>0));
+                end
+            else % no deconvolution signal exists, show the original peak signal
+                if any(result{fileid}.is_compound{EICid}(:,peakid)) % if a peak is detected
+                    if isempty(hdlcur)
+                        line(overhdl,orgx(result{fileid}.is_compound{EICid}(:,peakid)),...
+                            orgy(result{fileid}.is_compound{EICid}(:,peakid)),...
+                            'Color','r','Linewidth',2,'Tag','cur_curve');
+                    else
+                        set(hdlcur,'XData',orgx(result{fileid}.is_compound{EICid}(:,peakid)),...
+                            'YData',orgy(result{fileid}.is_compound{EICid}(:,peakid)));
+                    end
+                else % no peak is detected
+                    if isempty(hdlcur)
+                        line(overhdl,orgx(result{fileid}.is_peak{EICid}(:,peakid)),...
+                            orgy(result{fileid}.is_peak{EICid}(:,peakid)),...
+                            'Color','r','Linewidth',2,'Tag','cur_curve');
+                    else
+                        set(phdl(i),'XData',orgx(result{fileid}.is_peak{EICid}(:,peakid)),...
+                            'YData',orgy(result{fileid}.is_peak{EICid}(:,peakid)));
+                    end
+                end
+            end 
             hdl=findobj(overhdl,'type','line');
             set(overhdl,'UserData',get(hdl,'YData'));
-            axis(overhdl,'tight')
             % plot the compound in the neighboring (+/-2) files
             for i=startp:endp
                 axhdl=findobj('Tag',['ax_sub',num2str(i-startp+1)]);
@@ -8164,7 +8229,7 @@ function show_more_compound(hobj,~,pl_cur_comp,pl_more_comp,hdlrec,hdlmeth,fhdl)
                 end
                 id1=find(orgx>xrange(1),1,'first');
                 id2=find(orgx<xrange(2),1,'last');
-                maxy=1.05*max(orgy(id1:id2));
+                maxy=max(1,1.05*max(orgy(id1:id2)));
                 if i==fileid
                     set(axhdl,'XColor','r','XLim',[orgx(1) orgx(end)],'YColor','r','YLim',[0 maxy],...
                         'LineWidth',2,'Box','on','Tag',['ax_sub',num2str(i-startp+1)]);
@@ -8248,49 +8313,74 @@ function show_compound_in_nearby_files(hobj,~,fileid,compoundid,hdlrec,hdlmeth,f
         filelist=get(findobj('Tag','list_file'),'String');
     end
     if redraw_overlap_plot
-        set(overhdl,'nextplot','add')
+        set(overhdl,'nextplot','add');
+        phdl=findobj('tag','comp_overlap'); % get the IDs of the curves
         for i=1:nof
             orgx=result{i}.data{EICid}(:,1);
             orgy=result{i}.data{EICid}(:,2);
             decy=result{i}.decomp{EICid}(:,peakid);
-            phdl=findobj('tag',['comp_overlap',num2str(i)]);
             if any(decy) % if deconvolution signal exists, draw the deconvolution signal
                 if isempty(phdl)
-                    phdl=line(overhdl,orgx(decy>0),decy(decy>0),'tag',['comp_overlap',num2str(i)]);
+                    line(overhdl,orgx(decy>0),decy(decy>0),'tag','comp_overlap');
                 else
-                    set(phdl,'XData',orgx(decy>0),'YData',decy(decy>0),'Visible','on','Linewidth',0.5);
+                    set(phdl(i),'XData',orgx(decy>0),'YData',decy(decy>0));
                 end
             else % no deconvolution signal exists, show the original peak signal
-                if ~isempty(result{i}.is_compound{EICid}(:,peakid)) % if a peak is detected
+                if any(result{i}.is_compound{EICid}(:,peakid)) % if a peak is detected
                     if isempty(phdl)
-                        phdl=line(overhdl,orgx(result{i}.is_compound{EICid}(:,peakid)),orgy(result{i}.is_compound{EICid}(:,peakid)),...
-                            'tag',['comp_overlap',num2str(i)]);
+                        line(overhdl,orgx(result{i}.is_compound{EICid}(:,peakid)),...
+                            orgy(result{i}.is_compound{EICid}(:,peakid)),'tag','comp_overlap');
                     else
-                        set(phdl,'XData',orgx(result{i}.is_compound{EICid}(:,peakid)),...
-                        'YData',orgy(result{i}.is_compound{EICid}(:,peakid)),'Visible','on','Linewidth',0.5);
+                        set(phdl(i),'XData',orgx(result{i}.is_compound{EICid}(:,peakid)),...
+                        'YData',orgy(result{i}.is_compound{EICid}(:,peakid)));
                     end
                 else % no peak is detected
                     if isempty(phdl)
-                        phdl=line(overhdl,orgx(result{i}.is_peak{EICid}(:,peakid)),orgy(result{i}.is_peak{EICid}(:,peakid)),...
-                            'tag',['comp_overlap',num2str(i)],'Visible','off');
+                        line(overhdl,orgx(result{i}.is_peak{EICid}(:,peakid)),...
+                            orgy(result{i}.is_peak{EICid}(:,peakid)),'tag','comp_overlap');
                     else
-                        set(phdl,'Visible','off','Linewidth',0.5);
+                        set(phdl(i),'XData',orgx(result{i}.is_peak{EICid}(:,peakid)),...
+                            'YData',orgy(result{i}.is_peak{EICid}(:,peakid)));
                     end
                 end
             end
-            if i==orgfileid
-                set(phdl,'Linewidth',2);
+        end
+        axis(overhdl,'tight');
+    end
+    % draw the compound in the current sample with a wider line
+    hdlcur=findobj('Tag','cur_curve');
+    orgx=result{orgfileid}.data{EICid}(:,1);
+    orgy=result{orgfileid}.data{EICid}(:,2);
+    decy=result{orgfileid}.decomp{EICid}(:,peakid);
+    if any(decy) % if deconvolution signal exists, draw the deconvolution signal
+        if isempty(hdlcur)
+            line(overhdl,orgx(decy>0),decy(decy>0),'Color','r','LineWidth',2,'Tag','cur_curve');
+        else
+            set(hdlcur,'XData',orgx(decy>0),'YData',decy(decy>0));
+        end
+    else % no deconvolution signal exists, show the original peak signal
+        if any(result{orgfileid}.is_compound{EICid}(:,peakid)) % if a peak is detected
+            if isempty(hdlcur)
+                line(overhdl,orgx(result{orgfileid}.is_compound{EICid}(:,peakid)),...
+                    orgy(result{orgfileid}.is_compound{EICid}(:,peakid)),...
+                    'Color','r','Linewidth',2,'Tag','cur_curve');
+            else
+                set(hdlcur,'XData',orgx(result{orgfileid}.is_compound{EICid}(:,peakid)),...
+                    'YData',orgy(result{orgfileid}.is_compound{EICid}(:,peakid)));
+            end
+        else % no peak is detected
+            if isempty(hdlcur)
+                line(overhdl,orgx(result{orgfileid}.is_peak{EICid}(:,peakid)),...
+                    orgy(result{orgfileid}.is_peak{EICid}(:,peakid)),...
+                    'Color','r','Linewidth',2,'Tag','cur_curve');
+            else
+                set(hdlcur,'XData',orgx(result{orgfileid}.is_peak{EICid}(:,peakid)),...
+                    'YData',orgy(result{orgfileid}.is_peak{EICid}(:,peakid)));
             end
         end
-        hdl=findobj(overhdl,'type','line');
-        set(overhdl,'UserData',get(hdl,'YData'));
-        axis(overhdl,'tight');
-    elseif nof <= 50 % update the current file if number of files is less than 50 (too many lines cannot see the differences)
-        hdl=findobj(overhdl,'type','line');
-        set(hdl,'Linewidth',0.5);
-        hdl=findobj('tag',['comp_overlap',num2str(orgfileid)]);
-        set(hdl,'Linewidth',2);
     end
+    hdl=findobj(overhdl,'type','line');
+    set(overhdl,'UserData',get(hdl,'YData'));
     % plot the compound in the neighboring (+/-2) files
     for i=startp:endp
         axhdl=findobj('Tag',['ax_sub',num2str(i-startp+1)]);
@@ -8425,11 +8515,7 @@ function show_quantitation_message(hobj,~,is_show,hdlpara)
         pl_qmsg.Position=[0.9 0.8 0.0 0.2];
         set(pl_peakdet,'Visible','on','Enable','on');
         set(bg_conv,'Visible','on','Enable','on');
-%         if isempty(get(findobj('tag','pl_comp'),'UserData'))
-%             set(cb_normal,'Enable','off');
-%         else
-            set(cb_normal,'Visible','on','Enable','on');
-%         end
+        set(cb_normal,'Visible','on','Enable','on');
         pl_parabut.Position=[0.8 0.0 0.2 0.8];
         set(txt_hdl,'String','Quantitation Parameters');
     end
