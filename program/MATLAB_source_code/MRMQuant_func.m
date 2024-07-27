@@ -1310,6 +1310,8 @@ function plot_TIC(~,~)
     method=get(findobj('Tag','pl_comp'),'UserData');
     if ~isempty(method) && (fileid==idx) && ...% the TIC has been drawn before
             ((isempty(textid) && strcmpi(quant_state,'new')) || (~isempty(textid) && ~strcmpi(quant_state,'new')))
+        set(findobj('Tag','SL_plot_h'),'Enable','off','Visible','on'); % disable the horizontal slider
+        set(findobj('Tag','SL_plot_v'),'Enable','off','Visible','on'); % disable the vertical slider
         return
     end
     % get the axes handle
@@ -1357,8 +1359,8 @@ function plot_TIC(~,~)
     %Reverse the stacking order so that the patch overlays the line
     set(axhdl, 'Children',flipud(chi))
     axis('tight');
-    set(findobj('Tag','SL_plot_h'),'Enable','off','Visible','on');
-    set(findobj('Tag','SL_plot_v'),'Enable','off','Visible','on');
+    set(findobj('Tag','SL_plot_h'),'Enable','off','Visible','on'); % disable the horizontal slider
+    set(findobj('Tag','SL_plot_v'),'Enable','off','Visible','on'); % disable the vertical slider
     set(pg_bar,'Position',[0.0 0.0 0.0 1.0],'FaceColor','b')
     set(pg_text,'String',''); % clear the progress bar
 end
@@ -2439,21 +2441,38 @@ function peak_quantitation_all(hobj, ~,target)
     cla(hdlmtx);
     im=imagesc(hdlmtx,'CData',mtx(:,:,1),'AlphaData',mtx(:,:,1),'UserData',mtx(:,:,1),...
         'Tag','im_heatmap','ButtonDownFcn',{@heat_map_selection,hdlmtx});
-    hdlmtx.XTick=1:method.nocomp;
-    xtickangle(hdlmtx,90)
-    maxlen=max(cell2mat(cellfun(@(x)length(x),name,'UniformOutput',false)));
-    p1=0.03+(maxlen-1)*0.004;
-    p3=0.93-p1;
     pos=hdlmtx.Position;
-    hdlmtx.Position=[p1 pos(2) p3 pos(4)];
-    hdlmtx.YTick=1:fileno;
-    hdlmtx.YTickLabel=name;
+    % set up x-label
+    hdlmtx.XTick=1:method.nocomp;
+    xtickangle(hdlmtx,90);
     hdlmtx.XLabel.String = 'Compounds';
     hdlmtx.XLabel.FontSize = 14;
     hdlmtx.XLim=[0.5 max(method.nocomp+0.5,1.5)];
+    if para.xlabel==1
+        maxlen=max(cell2mat(cellfun(@(x)length(x),method.indiv_name,'UniformOutput',false))); % find the longest compound name
+        p2=0.13+(maxlen-2)*0.0086;
+        p4=0.95-p2;
+        hdlmtx.Position=[pos(1) p2 pos(3) p4];
+        hdlmtx.XTickLabel=method.indiv_name;
+    else
+        hdlmtx.Position=[pos(1) 0.13 pos(3) 0.82];
+        hdlmtx.XTickLabel=cellfun(@(x)num2str(x),num2cell(1:method.nocomp),'UniformOutput',false);
+    end
+    % set up y-label
+    hdlmtx.YTick=1:fileno;
     hdlmtx.YLabel.String = 'Samples';
     hdlmtx.YLabel.FontSize = 14;
     hdlmtx.YLim=[0.5 max(fileno+0.5,1.5)];
+    if para.ylabel==1
+        maxlen=max(cell2mat(cellfun(@(x)length(x),name,'UniformOutput',false))); % find the longest sample name
+        p1=0.03+(maxlen-1)*0.004;
+        p3=0.93-p1;
+        hdlmtx.Position=[p1 pos(2) p3 pos(4)];
+        hdlmtx.YTickLabel=name;
+    else
+        hdlmtx.Position=[0.03 pos(2) 0.90 pos(4)];
+        hdlmtx.YTickLabel=cellfun(@(x)num2str(x),num2cell(1:fileno),'UniformOutput',false);
+    end
     hdlmtx.Toolbar.Visible = 'on';
     hdlmtx.TickLabelInterpreter='none';
     colorbar(hdlmtx);
@@ -5491,8 +5510,8 @@ function change_plot(hobj,~,towhich)
     if toTIC % set the TIC plot to be visible
         % turn off heatmap controls and turn on TIC controls
         set(findobj('Tag','MRM_Quant'),'WindowButtonMotionFcn',[],'WindowKeyPressFcn',[]);
-        set(findall(ax1, '-property', 'visible'), 'visible', 'on');
-        set(findall(ax2, '-property', 'visible'), 'visible', 'off');
+        set(findall(ax1, '-property', 'visible'), 'visible', 'on'); % set TIC controls to visible
+        set(findall(ax2, '-property', 'visible'), 'visible', 'off'); % set heatmap controls to invisible
         set(findobj('Tag', 'PB_heatmap_option'), 'visible', 'off');
         ax1.Toolbar.Visible='on';
         ax2.Toolbar.Visible='off';
@@ -5513,9 +5532,13 @@ function change_plot(hobj,~,towhich)
     else % set the heat map to be visible
         % turn on heatmap controls and turn off TIC controls
         set(findobj('Tag','MRM_Quant'),'WindowButtonMotionFcn',@cursorPos,'WindowKeyPressFcn',@KeyDirect);
-        set(findall(ax1, '-property', 'visible'), 'visible', 'off');
-        set(findall(ax2, '-property', 'visible'), 'visible', 'on');
+        set(findall(ax1, '-property', 'visible'), 'visible', 'off'); % set TIC controls to invisible
+        set(findall(ax2, '-property', 'visible'), 'visible', 'on'); % set heatmap controls to visible
         set(findobj('Tag', 'PB_heatmap_option'), 'visible', 'on');
+        shdl_h=findobj('Tag','SL_plot_h');
+        shdl_v=findobj('Tag','SL_plot_v');
+        set(shdl_h,'Enable', 'on');
+        set(shdl_v,'Enable', 'on');
         method=get(findobj('Tag','pl_comp'),'UserData');
         para=get(findobj('Tag','pl_para'),'UserData');
         ax1.Toolbar.Visible='off';
@@ -5558,20 +5581,18 @@ function change_plot(hobj,~,towhich)
                 ax2.XLim=[left-0.5 min(left+para.comp_num,method.nocomp)];
                 ax2.YLim=[top-0.5 min(top+para.file_num,filenum)];
                 % update the sliders
-                shdl_h=findobj('Tag','SL_plot_h');
-                if method.nocomp >= para.comp_num
+                if method.nocomp >= para.comp_num % total compound number is greater than the display number
                     vvalue=min(max((left-1)/(method.nocomp-para.comp_num),0),1);
                     svalue=[min(1,5/(method.nocomp-para.comp_num)) min(1,para.comp_num/(method.nocomp-para.comp_num))];
                     set(shdl_h,'value',vvalue,'SliderStep',svalue,'Enable','on');
-                else
+                else % display all compounds
                     shdl_h.Enable='off';
-                end
-                shdl_v=findobj('Tag','SL_plot_v');
-                if filenum >= para.file_num
-                    vvalue=min(max((top-1)/(filenum-para.file_num),0),1);
-                    svalue=[min(1,5/(filenum-para.file_num)) min(1,para.file_num/(filenum-para.file_num))];
+                end                
+                if filenum >= para.file_num % total file number is greater than the display number
+                    vvalue=min(max((top-1)/(filenum-para.file_num),0),1); % slide value
+                    svalue=[min(1,5/(filenum-para.file_num)) min(1,para.file_num/(filenum-para.file_num))]; % step
                     set(shdl_v,'value',vvalue,'SliderStep',svalue,'Enable','on');
-                else
+                else % display all files
                     shdl_v.Enable='off';
                 end
                 % update the miniature in the MRM window
@@ -6939,7 +6960,7 @@ function show_heatmap_options(~,~,hdlrec,hdlmeth,hdlpara,hdlaxhm)
         'BorderType','line',...
         'Fontsize',12,...
         'Position',[0.03 0.13 0.43 0.23],...
-        'SelectionChangedFcn',{@change_vertical_axis_label,hdlaxhm}, ...
+        'SelectionChangedFcn',{@change_vertical_axis_label,hdlpara,hdlaxhm}, ...
         'Title','Vertical Axis',...
         'Visible','on');
     % show sample names
@@ -6952,7 +6973,7 @@ function show_heatmap_options(~,~,hdlrec,hdlmeth,hdlpara,hdlaxhm)
         'Style','radiobutton',...
         'Tag','rb_v_text',...
         'Tooltip','Show sample names at the vertical axis.',...
-        'Value',1);
+        'Value',para.ylabel);
     % show numbers
     uicontrol('Parent',bg_v_label, ...
         'Units','normalized', ...
@@ -6962,14 +6983,14 @@ function show_heatmap_options(~,~,hdlrec,hdlmeth,hdlpara,hdlaxhm)
         'String','Show Index',...
         'Style','radiobutton',...
         'Tooltip','Show numerical indices at the vertical axis.',...
-        'Value',0);
+        'Value',1-para.ylabel);
     % radiobuttons for horizontal axis label
     bg_h_label = uibuttongroup('Parent',heatmapoptwin, ...
         'BackgroundColor',bgcolor, ...
         'BorderType','line',...
         'Fontsize',12,...
         'Position',[0.49 0.13 0.48 0.23],...
-        'SelectionChangedFcn',{@change_horizontal_axis_label,hdlmeth,hdlaxhm}, ...
+        'SelectionChangedFcn',{@change_horizontal_axis_label,hdlmeth,hdlpara,hdlaxhm}, ...
         'Title','Horizontal Axis',...
         'Visible','on');
     % show sample names
@@ -6982,7 +7003,7 @@ function show_heatmap_options(~,~,hdlrec,hdlmeth,hdlpara,hdlaxhm)
         'Style','radiobutton',...
         'Tag','rb_h_text',...
         'Tooltip','Show compound names at the horizontal axis.',...
-        'Value',0);
+        'Value',para.xlabel);
     % show numbers
     uicontrol('Parent',bg_h_label, ...
         'Units','normalized', ...
@@ -6992,7 +7013,7 @@ function show_heatmap_options(~,~,hdlrec,hdlmeth,hdlpara,hdlaxhm)
         'String','Show Index',...
         'Style','radiobutton',...
         'Tooltip','Show numerical indices at the horizontal axis.',...
-        'Value',1);
+        'Value',1-para.xlabel);
     % close the option window
     uicontrol('Parent',heatmapoptwin, ...
         'Units','normalized', ...
@@ -7363,37 +7384,45 @@ end
 % switch the label of the vertical axis of the heatmap between sample file
 % names and indices
 %--------------------------------------------------------------------------
-function change_vertical_axis_label(hobj,~,hdlaxhm)
+function change_vertical_axis_label(hobj,~,hdlpara,hdlaxhm)
+    para=hdlpara.UserData;
     filelist=get(findobj('Tag','list_file'),'String');
     fname=find_representative_name(filelist);
     nof=length(filelist); % number of files in the folder
-    pos=get(hdlaxhm,'Position');
+    pos=hdlaxhm.Position;
     if strcmpi(hobj.SelectedObject.String,'show index')
         set(hdlaxhm,'Position',[0.03 pos(2) 0.90 pos(4)],'YTick',1:nof,'YTickLabel',cellfun(@(x)num2str(x),num2cell(1:nof), 'UniformOutput', false));
+        para.ylabel=0;
     else
         maxlen=max(cell2mat(cellfun(@(x)length(x),fname,'UniformOutput',false)));
         p1=0.03+(maxlen-1)*0.004;
         p3=0.93-p1;
         set(hdlaxhm,'Position',[p1 pos(2) p3 pos(4)],'YTick',1:nof,'YTickLabel',fname);
+        para.ylabel=1;
     end
+    hdlpara.UserData=para;
 end
 % -------------------------------------------------------------------------
 % switch the label of the horizontal axis of the heatmap between compound
 % names and indices
 %--------------------------------------------------------------------------
-function change_horizontal_axis_label(hobj,~,hdlmeth,hdlaxhm)
+function change_horizontal_axis_label(hobj,~,hdlmeth,hdlpara,hdlaxhm)
     method=hdlmeth.UserData;
+    para=hdlpara.UserData;
     noc=method.nocomp;
     pos=get(hdlaxhm,'Position');
-    if strcmpi(hobj.SelectedObject.String,'show index')
-        set(hdlaxhm,'Position',[pos(1) 0.12 pos(3) 0.83],'XTick',1:noc,'XTickLabel',cellfun(@(x)num2str(x),num2cell(1:noc), 'UniformOutput', false));
-    else
+    if strcmpi(hobj.SelectedObject.String,'show index') % show numeric indices on xlabel
+        set(hdlaxhm,'Position',[pos(1) 0.13 pos(3) 0.82],'XTick',1:noc,'XTickLabel',cellfun(@(x)num2str(x),num2cell(1:noc), 'UniformOutput', false));
+        para.xlabel=0;
+    else % show compound name on xlabel
         maxlen=max(cell2mat(cellfun(@(x)length(x),method.indiv_name,'UniformOutput',false)));
-        p2=0.12+(maxlen-2)*0.0085;
+        p2=0.13+(maxlen-2)*0.0086;
         p4=0.95-p2;
         set(hdlaxhm,'Position',[pos(1) p2 pos(3) p4],'XTick',1:noc,'XTickLabel',method.indiv_name);
+        para.xlabel=1;
     end
     xtickangle(hdlaxhm,90);
+    hdlpara.UserData=para;
 end
 %--------------------------------------------------------------
 % the OK button in the standard curve input window is pressed.

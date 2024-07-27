@@ -23,6 +23,8 @@ if ~isfile('default_parameter.xlsx')
     para.show_ambiguous_comp=1;
     para.file_num=10;
     para.comp_num=50;
+    para.xlabel=0;
+    para.ylabel=1;
     para.auto_deconv=1;
     para.always_deconv=0;
     para.no_deconv=0;
