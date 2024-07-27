@@ -8,6 +8,7 @@ if ~isfile('default_parameter.xlsx')
     para.abs_int=1;
     para.abs_stc=0;
     para.rel_quant=0;
+    para.quantifier_sel=0;
     para.bg_auto=1;
     para.bg_int=500; % signal lower than bg_int will be regarded as background noise
     para.sn_ratio=2.0; % signal larger than 3 times of background noise will be considered for peak detection
@@ -37,7 +38,7 @@ else
         para.dir=pwd; % default working directory;
     end
 end
-MRM_Quantation_func(para);
+MRMQuant_func(para);
 
 % UserData storages
 % rec: 'Tag','MRM_Quant'
