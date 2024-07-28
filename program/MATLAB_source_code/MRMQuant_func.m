@@ -1460,6 +1460,9 @@ function plot_EIC(objectHandle , ~, par1,par2)
             if strcmpi(fromwhere,'TIC')
                 str=char(strtrim(objectHandle.String(1,:)),[' ',strtrim(objectHandle.String(2,:))]);
                 lhdl=findobj('tag',str);
+                if length(lhdl)>1
+                    lhdl=lhdl(1);
+                end
                 stem(axm,rec{fileid}.tic(:,1),rec{fileid}.tic(:,2),'markersize',1,'color','k','tag','TIC_mini');
                 line(axm,lhdl.XData,lhdl.YData,'Color','r','linewidth',2,'tag','sel_line_mini');
                 set(findobj('Tag','PB_prev_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the previous file
@@ -9530,12 +9533,12 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range)
         % extract the abundances of the sample data
         SampAbund=cmtx(:,i,1);
         % extract the abundances of the QC sample data
-        QCAbund=SampAbund(QCid);
+        QCAbund_comp=QCAbund(:,i);
         % construct the lowess regression curve
-        keepid=~(isnan(QCAbund) | isinf(QCAbund));
+        keepid=~(isnan(QCAbund_comp) | isinf(QCAbund_comp));
         span=max(3,min(para.lowess_span,sum(keepid)-2));
         try
-            yout=mslowess(qcidx(keepid),QCAbund(keepid),'Order',2,'Kernel','tricubic',...
+            yout=mslowess(qcidx(keepid),QCAbund_comp(keepid),'Order',2,'Kernel','tricubic',...
                 'Span',span,'RobustIterations',1);
         catch
             errordlg('Not enough QC samples were selected for the LOWESS regression,','Error Running MSLowess','modal');
@@ -9545,9 +9548,6 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range)
         % compute the normalized abundances
         abund_adjust_ratio(:,i)=norm_abund(:,i)./spl;
         norm_abund(:,i)=SampAbund.*abund_adjust_ratio(:,i);
-        if any(abund_adjust_ratio(:,i)<0)
-            disp('error')
-        end
     end    
     % compute the normalized concentrations
     for i=filestart:fileend
@@ -9562,9 +9562,6 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range)
                 elseif (method.ISidx~=-1) % the compound index of the internal standard is provided
                     ISIDX=method.ISidx;
                     ref_abund=cmtx(i,ISIDX,1)*abund_adjust_ratio(i,ISIDX);
-                end
-                if (cmtx(i,j,1)*abund_adjust_ratio(i,j)/ref_abund) < 0
-                    disp('error');
                 end
                 [cmtx(i,j,2),~]=find_conc_from_standard_curve(exp,j,cmtx(i,j,1)*abund_adjust_ratio(i,j)/ref_abund);
             elseif para.abs_int
