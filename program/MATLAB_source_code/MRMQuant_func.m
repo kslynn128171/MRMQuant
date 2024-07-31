@@ -749,7 +749,7 @@ function MRMQuant_func(para)
         'FontUnits','normalized', ...
         'BackgroundColor',[0.75 0.75 0.75], ...
         'Callback',@export_plot, ...
-        'Position',[0.11 0.95 0.08 0.04], ...
+        'Position',[0.05 0.95 0.07 0.04], ...
         'String','Export Plot', ...
         'Style','pushbutton',...
         'Tooltip','Export the current EIC plot to an image file');
@@ -759,7 +759,7 @@ function MRMQuant_func(para)
         'FontUnits','normalized', ...
         'BackgroundColor',[0.75 0.75 0.75], ...
         'Callback',@expand_plot_window, ...
-        'Position',[0.21 0.95 0.06 0.04], ...
+        'Position',[0.14 0.95 0.05 0.04], ...
         'String','Expand', ...
         'Style','pushbutton',...
         'Tooltip','Expand the current EIC plot');
@@ -769,7 +769,7 @@ function MRMQuant_func(para)
         'FontUnits','normalized', ...
         'BackgroundColor',[0.75 0.75 0.75], ...
         'Callback',@change_plot, ...
-        'Position',[0.29 0.95 0.1 0.04], ...
+        'Position',[0.21 0.95 0.09 0.04], ...
         'String','Show Heat Map', ...
         'Style','togglebutton',...
         'Tag','PB_TIC_Heat',...
@@ -780,7 +780,7 @@ function MRMQuant_func(para)
         'FontUnits','normalized', ...
         'BackgroundColor',[0.75 0.75 0.75], ...
         'Callback',{@inspection_mode,mainwin}, ...
-        'Position',[0.41 0.95 0.14 0.04], ...
+        'Position',[0.32 0.95 0.13 0.04], ...
         'String','Activate Inspection Mode', ...
         'Style','togglebutton',...
         'Tag','PB_inspect_mode',...
@@ -791,7 +791,7 @@ function MRMQuant_func(para)
         'FontUnits','normalized', ...
         'BackgroundColor',[0.75 0.75 0.75], ...
         'Callback',{@show_batch_effect_correction_result,mainwin,pl_comp,pl_para,ax1}, ...
-        'Position',[0.57 0.95 0.16 0.04], ...
+        'Position',[0.47 0.95 0.15 0.04], ...
         'String','Show Batch Effect Correction', ...
         'Style','pushbutton',...
         'Tag','PB_show_norm',...
@@ -802,11 +802,22 @@ function MRMQuant_func(para)
         'FontUnits','normalized', ...
         'BackgroundColor',[0.75 0.75 0.75], ...
         'Callback',{@show_heatmap_options,mainwin,pl_comp,pl_para,ax1}, ...
-        'Position',[0.75 0.95 0.1 0.04], ...
+        'Position',[0.64 0.95 0.1 0.04], ...
         'String','Heat Map Options', ...
         'Style','pushbutton',...
         'Tag','PB_heatmap_option',...
         'Tooltip','Display options for the heatmap');
+    % show quantifier ion ratio
+    uicontrol('Parent',pl_plot, ...
+        'Units','normalized', ...
+        'FontUnits','normalized', ...
+        'BackgroundColor',[0.75 0.75 0.75], ...
+        'Callback',{@show_quantifier_ratio}, ...
+        'Position',[0.76 0.95 0.12 0.04], ...
+        'String','Show Quantifier Ratios', ...
+        'Style','pushbutton',...
+        'Tag','PB_quantifier_ratio',...
+        'Tooltip','Display the table of quantifier ratios');
     set(findall(pl_comp, '-property', 'enable'), 'enable', 'off');
     set(findall(pl_para, '-property', 'enable'), 'enable', 'off');
     set(findall(pl_plot, '-property', 'enable'), 'enable', 'off');
@@ -908,8 +919,30 @@ end
 % function that load MRM files
 %--------------------------------------------------------------
 function filelist=browse_test_folder(~,~,hdlrec,hdldirinfo)
-    filelist={};
     hdlpara=findobj('Tag','pl_para');
+    % check whether an unsaved result exists
+    save_status=get(findobj('Tag','PB_save_result'),'UserData');
+    if isempty(save_status)
+        is_saved=true;
+    else
+        is_saved=save_status;
+    end
+    if ~is_saved
+        opts = struct('Default','Save and proceed','WindowStyle','modal','Interpreter','tex');
+        answer = questdlg('\fontsize{12}The computed/modified result has not been saved. Save it before starting a new quantitation?',...
+            'Data Loss Warning','Save and proceed','Proceed without saving','Cancel',opts); 
+        if strcmpi(answer,'Save and proceed')
+            hdlmeth=findobj('Tag','pl_comp');
+            hdlastc=findobj('Tag','rb_abs_stc');
+            save_quantitation_result('','',hdlrec,hdlmeth,hdlastc,hdlpara);
+            clear_existing_results;
+        elseif strcmpi(answer,'Proceed without saving')
+            clear_existing_results;
+        else
+            return;
+        end
+    end
+    filelist={};
     para=hdlpara.UserData;
     dirinfo=hdldirinfo.UserData;
     if isempty(dirinfo)
@@ -1295,6 +1328,7 @@ function change_min_peak_dist(hobj,~,hdlpara)
     % update the parameters
     hdlpara.UserData=para;
 end
+
 %--------------------------------------------------------------
 % plot a TIC data 
 %--------------------------------------------------------------
@@ -2335,6 +2369,9 @@ end
 % ---------------------------------------------------
 function hide_figure(~,~,fobj)
     set(fobj,'Visible','off','Hittest','off');
+    if get(findobj('Tag','rb_quantifier_sel'),'Value')==1
+        set(findobj('Tag','PB_quantifier_ratio'),'Enable','on');
+    end
 end
 % ---------------------------------------------------
 % close a figure
@@ -2635,6 +2672,7 @@ function peak_quantitation_all(hobj, ~,target)
         set(findall(findobj('Tag','pl_comp'),'-property','enable'),'enable','on');
         set(findall(hdlpara,'-property','enable'),'enable','on');
         set(findall(findobj('Tag','pl_plot'),'-property','enable'),'enable','on');
+        set(findobj('Tag','PB_quantifier_ratio'),'enable','off'); % keep quantifier_ratio off
         set(findobj('Tag','PB_TIC_Heat'),'Enable','on');
         set(findobj('Tag','PB_save_result'),'enable','on');
     end
@@ -2650,7 +2688,7 @@ function peak_quantitation_all(hobj, ~,target)
     set(pg_bar,'Position',[0.0 0.0 0.0 1.0],'FaceColor','b')
     set(pg_text,'String','');
     if para.quantifier_sel==1
-        compute_ion_ratio(hdlmeth,hdlmtx);
+        waitfor(compute_ion_ratio(hdlmeth,hdlmtx),'visible','on');
     end
     % write data to a csv file
     if save_result
@@ -3414,6 +3452,8 @@ function close_check(~,~)
     if ~isempty(selwin), delete(selwin); end
     refwin=findobj('Tag','ref_select');
     if ~isempty(refwin), delete(refwin); end
+    fig_peak_ratio=findobj('tag','fg_fragment_ratio');
+    if ~isempty(fig_peak_ratio), delete(fig_peak_ratio); end
     closereq;
 end
 %--------------------------------------------------------------
@@ -5260,7 +5300,7 @@ function change_EIC(hobj,~,direct,hdlmeth,hdlastc,hdlaxhm,hdlimg)
     else % quantitation on testing data
         filenum=length(fhdl.String);
     end
-    is_heatmap=get(findobj('Tag','PB_TIC_Heat'),'Value')==0;
+    is_heatmap=strcmpi(get(findobj('Tag','PB_TIC_Heat'),'String'),'Show TIC Plot'); % heat map is shown;
     if is_heatmap % select the EIC from a heat map
         if strcmpi(hdlaxhm.Tag,'AX_TIC_plot')
             hdlaxhm=findobj('Tag','AX_heat_map');
@@ -5515,11 +5555,12 @@ function change_plot(hobj,~,towhich)
         set(findobj('Tag','MRM_Quant'),'WindowButtonMotionFcn',[],'WindowKeyPressFcn',[]);
         set(findall(ax1, '-property', 'visible'), 'visible', 'on'); % set TIC controls to visible
         set(findall(ax2, '-property', 'visible'), 'visible', 'off'); % set heatmap controls to invisible
-        set(findobj('Tag', 'PB_heatmap_option'), 'visible', 'off');
+        set(findobj('Tag', 'PB_heatmap_option'), 'enable', 'off');
         ax1.Toolbar.Visible='on';
         ax2.Toolbar.Visible='off';
         colorbar(ax2,'off');
         bhdl.String='Show Heat Map';
+        bhdl.Value=0;
         uistack(ax1,'top');
         plot_TIC('',''); % generate the TIC plot
         if ~isempty(hobj) && ...% call by the "Show TIC plot" button
@@ -5535,9 +5576,9 @@ function change_plot(hobj,~,towhich)
     else % set the heat map to be visible
         % turn on heatmap controls and turn off TIC controls
         set(findobj('Tag','MRM_Quant'),'WindowButtonMotionFcn',@cursorPos,'WindowKeyPressFcn',@KeyDirect);
-        set(findall(ax1, '-property', 'visible'), 'visible', 'off'); % set TIC controls to invisible
-        set(findall(ax2, '-property', 'visible'), 'visible', 'on'); % set heatmap controls to visible
-        set(findobj('Tag', 'PB_heatmap_option'), 'visible', 'on');
+        set(findall(ax1, '-property', 'Visible'), 'Visible', 'off'); % set TIC controls to invisible
+        set(findall(ax2, '-property', 'Visible'), 'Visible', 'on'); % set heatmap controls to visible
+        set(findobj('Tag', 'PB_heatmap_option'), 'Visible', 'on','Enable', 'on');
         shdl_h=findobj('Tag','SL_plot_h');
         shdl_v=findobj('Tag','SL_plot_v');
         set(shdl_h,'Enable', 'on');
@@ -5548,6 +5589,7 @@ function change_plot(hobj,~,towhich)
         ax2.Toolbar.Visible='on';
         colorbar(ax2);
         bhdl.String='Show TIC Plot';
+        bhdl.Value=1;
         uistack(ax2,'top');
         if ~isempty(hobj) && ...% call by the "Show TIC plot" button
                 (get(findobj('Tag','PB_inspect_mode'),'Value')==1) % the inspect mode is on
@@ -5928,7 +5970,7 @@ function prepare_standard_curve_data(~, ~)
         'Units','normalized', ...
         'Fontsize',12, ...
         'BackgroundColor',[0.75 0.75 0.75], ...
-        'Callback',@pre_align_check, ...
+        'Callback',@pre_quantitation_check, ...
         'Enable','off',...
         'Position',[0.6 0.02 0.14 0.04], ...
         'String','Ok', ...
@@ -6079,9 +6121,9 @@ function filelist=browse_std_folder(~, ~)
 end
 %--------------------------------------------------------------
 % check if information of standard compounds is complete. If the
-% information is complete, perform peak alignment.
+% information is complete, perform peak quantitation.
 %--------------------------------------------------------------
-function pre_align_check(~,~)
+function pre_quantitation_check(~,~)
     hdl1=findobj('Tag','PB_ok');
     hdl2=findobj('Tag','PB_cancel');
     if ~isempty(hdl1)
@@ -6707,6 +6749,28 @@ end
 % determine quantitation type for the subsequent process
 % ----------------------------------------------------------
 function quantitation_type(hobject,~,hdlrec,hdlpara)
+
+    save_status=get(findobj('Tag','PB_save_result'),'UserData');
+    if isempty(save_status)
+        is_saved=true;
+    else
+        is_saved=save_status;
+    end
+    if ~is_saved
+        opts = struct('Default','Save and proceed','WindowStyle','modal','Interpreter','tex');
+        answer = questdlg('\fontsize{12}The computed/modified result has not been saved. Save it before starting a new quantitation?',...
+            'Data Loss Warning','Save and proceed','Proceed without saving','Cancel',opts); 
+        if strcmpi(answer,'Save and proceed')
+            hdlmeth=findobj('Tag','pl_comp');
+            hdlastc=findobj('Tag','rb_abs_stc');
+            save_quantitation_result('','',hdlrec,hdlmeth,hdlastc,hdlpara);
+            clear_existing_results;
+        elseif strcmpi(answer,'Proceed without saving')
+            clear_existing_results;
+        else
+            return;
+        end
+    end
     % reset the userdata for sample quantitation
     set(hdlrec,'WindowButtonMotionFcn',[],'WindowKeyPressFcn',[]);
     state=hobject.UserData; % find the current state stored in the "start quantitation" button
@@ -7363,7 +7427,7 @@ function change_heatmap_abundent(~,~,hdlrec,hdlmeth,hdlpara,hdlaxhm)
         set(imhdl,'CData',mtx,'AlphaData',showalpha,'UserData',alpha);
         hdlaxhm.CLim = [cmin,cmax];
     end
-    if get(findobj('Tag','PB_TIC_Heat'),'Value')==0
+    if strcmpi(get(findobj('Tag','PB_TIC_Heat'),'String'),'Show TIC Plot') % heat map is shown % heat map is shown
         hdlaxm_mini=findobj('Tag','AX_miniature');
         imhdl_mini=findobj('Tag','im_heatmap_mini');
         if ~isempty(hdlaxm_mini)
@@ -7538,7 +7602,7 @@ function load_quantitation_result(~,~,hdlrec,hdlmeth,hdlastc,hdlpara)
         set(findall(hdlmeth,'-property','enable'),'enable','on');
         set(findall(hdlpara,'-property','enable'),'enable','on');
         set(findall(findobj('Tag','pl_plot'),'-property','enable'),'enable','on');
-        set(findobj('Tag','PB_TIC_Heat'),'String','Show TIC Plot','Value',0);
+        set(findobj('Tag','PB_TIC_Heat'),'String','Show TIC Plot','Value',1);
         set(findobj('Tag','PB_inspect_mode'),'String','Activate Inspection Mode','Value',0);
         set(findobj('Tag','PB_heatmap_option'),'Enable','on');
         set(findobj('Tag','PB_quant'),'Enable','on');
@@ -8376,7 +8440,7 @@ function update_concentration_and_heatmap_matrix(fileid,compoundid,EICid,peakid,
     % update the heat map miniature if the EIC window exist
     if ~isempty(findobj('tag','AX_EIC'))
         axm=findobj('Tag','AX_miniature'); % get the handle of the miniature
-        if get(findobj('Tag','PB_TIC_Heat'),'Value') == 0
+        if strcmpi(get(findobj('Tag','PB_TIC_Heat'),'String'),'Show TIC Plot') % heat map is shown
             rchdl1=findobj('Tag','sel_rect'); % get the handle of the selected EIC in the heat map
             % update heatmap in the the miniature
             set(axm,'XLim',hdlmtx.XLim,'YLim',hdlmtx.YLim,'YDir',hdlmtx.YDir,...
@@ -10570,7 +10634,7 @@ end
 % -------------------------------------------------------------------------
 % compute abundance ratio between fragments of a compound
 % -------------------------------------------------------------------------
-function compute_ion_ratio(hdlmeth,hdlmtx)
+function fig_peak_ratio=compute_ion_ratio(hdlmeth,hdlmtx)
     global bgcolor
     method=hdlmeth.UserData;
     cmtx=hdlmtx.UserData;
@@ -10607,7 +10671,8 @@ function compute_ion_ratio(hdlmeth,hdlmtx)
         end
     end
     tdata=[method.indiv_name(iu),rt,cellstr(string(method.mz(iu))),frag,max_frag,ratio_table];
-    if isempty(findobj('tag','fg_fragment_ratio'))
+    fig_peak_ratio=findobj('tag','fg_fragment_ratio');
+    if isempty(fig_peak_ratio)
         cnames=[{'Compound Name'},{'RT'},{'Precursor'},{'Product Ions'},{'Max. Ion'},rationame];
         fig_peak_ratio=figure('Color',bgcolor,...
             'NumberTitle','off', ...
@@ -10627,14 +10692,18 @@ function compute_ion_ratio(hdlmeth,hdlmtx)
             'Units','normalized', ...
             'FontUnits','normalized', ...
             'BackgroundColor',[0.75 0.75 0.75], ...
-            'Callback',{@close_figure,fig_peak_ratio}, ...
+            'Callback',{@hide_figure,fig_peak_ratio}, ...
             'Position',[0.45 0.02 0.1 0.06], ...
             'String','Close');
     else
         tblhdl=findobj('Tag','tbl_comp_ratio');
         tblhdl.Data=tdata;
+        fig_peak_ratio.Visible='on';
     end
     tbl=cell2table(tblhdl.Data);
     tbl.Properties.VariableNames=tblhdl.ColumnName;
     set(findobj('tag','rb_quantifier_sel'),'UserData',tbl);
+end
+function show_quantifier_ratio(~,~)
+    set(findobj('Tag','fg_fragment_ratio'),'visible','on');
 end
