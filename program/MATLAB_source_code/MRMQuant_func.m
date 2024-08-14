@@ -1294,6 +1294,8 @@ function change_method(~,~,target,hdlmeth,hdldirinfo)
                 set(findobj('Tag','PB_quant'),'Enable','on');
                 set(findobj('Tag','SL_plot_h'),'UserData',[method.nocomp para.comp_num]);
             end
+            tblhdl.Data=data; % copy the data from file to table
+            tblhdl.ColumnName=varNames;%t.Properties.VariableNames; % set the table column names
         else % the data is for standard curve generation
             tblhdl=findobj('Tag','tbl_std_RT');
             % check the consistency with that of experiment compounds and store
@@ -1309,9 +1311,8 @@ function change_method(~,~,target,hdlmeth,hdldirinfo)
                 set(findobj('Tag','pl_std_para'),'Enable','on');
                 set(findobj('Tag','PB_std_ok'),'Enable','on');
             end
+            tblhdl.Data(:,1:end-2)=data; % copy the data from file to table
         end
-        tblhdl.Data=data; % copy the data from file to table
-        tblhdl.ColumnName=varNames;%t.Properties.VariableNames; % set the table column names
         set(findobj('Tag','cb_normal'),'Value',para.normal);
         show_quantitation_message('','',0,hdlpara);
     else
@@ -2917,12 +2918,22 @@ function peak_quantitation_file(~,~,index,target,hdlrec,hdlmeth,hdlpara,hdlastc,
             % can be performed successfully
             mody=rec{index}.data{i}(:,2);
             for j=1:length(idx)
-                gid=find(cumv==idx(j));
-                pid=gid(1)+floor(length(gid)/2);
-                leftv=linspace(mody(gid(1)-1),mody(pid),pid-gid(1)+2);
-                rightv=linspace(mody(pid),mody(gid(end)+1),gid(end)-pid+2);
-                tempv=[leftv rightv(2:end)];
-                mody(cumv==idx(j))=tempv(2:(end-1));
+                gid=find(cumv==idx(j)); % indices of saturated signals
+                pid=gid(1)+floor(length(gid)/2); % expected peak tip index
+                if gid(1)==1 % saturation starts at the beginning of the signal
+                    leftv=linspace(0.8*maxv,mody(pid),pid-gid(1)+1);% modify the saturated signals at the left of the tip
+                else
+                    leftv=linspace(mody(gid(1)-1),mody(pid),pid-gid(1)+2);% modify the saturated signals at the left of the tip
+                    leftv=leftv(2:end);
+                end
+                if gid(end)==dlen % saturation starts at the beginning of the signal
+                    rightv=linspace(mody(pid),0.8*maxv,gid(end)-pid+1);% modify the saturated signals at the left of the tip
+                else
+                    rightv=linspace(mody(pid),mody(gid(end)+1),gid(end)-pid+2); % modify the saturated signals at the right of the tip
+                    rightv=rightv(1:(end-1));
+                end
+                tempv=[leftv rightv(2:end)]; % combine the signals of the two sides
+                mody(gid)=tempv;
             end
             LOCS=rec{index}.data{i}(binv,1);
             for j=1:nop % check whether a target is saturated
@@ -7606,9 +7617,22 @@ function load_quantitation_result(~,~,hdlrec,hdlmeth,hdlastc,hdlpara)
         method=var.method;
         hdlmeth.UserData=method;
         para=var.para;
-        hdlpara.UserData=para;
-        hdlastc.Value=para.abs_stc;
-        hdlastc.UserData=var.exp;
+        % set default values to missing values for data saved by older version
+        if ~isfield(para,'quantifier_sel'),para.quantifier_sel=0;end
+        if ~isfield(para,'xlabel'),para.xlabel=0;end
+        if ~isfield(para,'ylabel'),para.ylabel=1;end
+        if ~isfield(para,'normal'),para.normal=1;end
+        if ~isfield(para,'norm_reg_method'),para.norm_reg_method='stepwise';end
+        if ~isfield(para,'max_int'),para.max_int=1.3e8;end
+        if ~isfield(para,'lowess_span'),para.lowess_span=0.1;end
+        hdlpara.UserData=para; % update parameter settings
+        rec=hdlrec.UserData;
+        for i=1:length(rec)
+            if ~isfield(rec{i},'conc_org'),rec{i}.conc_org=rec{i}.concentration;end
+        end
+        hdlrec.UserData=rec;
+        hdlastc.UserData=var.exp; % update standard curve data
+        hdlastc.Value=para.abs_stc; % update standard curve data
         set(findobj('Tag','list_file'),'String',var.filelist,'UserData',var.filelist,'Value',1);
         set(findobj('Tag','tbl_comp_list'),'Data',var.methoddata,'ColumnName',var.columnname);
         set(findobj('Tag','rb_abs_int'),'Value',para.abs_int);
@@ -10746,4 +10770,35 @@ function fig_peak_ratio=compute_ion_ratio(hdlmeth,hdlmtx)
 end
 function show_quantifier_ratio(~,~)
     set(findobj('Tag','fg_fragment_ratio'),'visible','on');
+end
+function para=default_parameters()
+    para.dir=pwd; % default working directory
+    para.abs_int=1;
+    para.abs_stc=0;
+    para.rel_quant=0;
+    para.quantifier_sel=0;
+    para.bg_auto=1;
+    para.bg_int=500; % signal lower than bg_int will be regarded as background noise
+    para.sn_ratio=2.0; % signal larger than 3 times of background noise will be considered for peak detection
+    para.min_peak_width=0.02; % min. peak width
+    para.min_peak_dist=0.04; % min. distance between peaks 
+    para.smooth_win=7;
+    para.smooth_auto=1;
+    para.show_colorbar=1;
+    para.colormap='jet';
+    para.take_log=1;
+    para.show_grid=0;
+    para.show_ambiguous_comp=1;
+    para.file_num=10;
+    para.comp_num=50;
+    para.xlabel=0;
+    para.ylabel=1;
+    para.auto_deconv=1;
+    para.always_deconv=0;
+    para.no_deconv=0;
+    para.normal=1;
+    para.norm_reg_method='stepwise';
+    para.heatmap_abund=0; % 0 for concentration, 1 for abundance
+    para.max_int=1.3e8;
+    para.lowess_span=0.1;
 end
