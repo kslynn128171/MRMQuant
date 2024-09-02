@@ -16,70 +16,77 @@ function chromdata = mzML_read(file)
 % Fu-Jen Catholic University
 % Email: 128171@mail.fju.edu.tw
 % Final Update: Jul. 24, 2022
-%file='20230628_STD01_0.05.mzML';
-fileID = fopen(file,'r');
-if fileID < 0
-    errordlg(['The file ',file,' is not readable!'],'File Open Error');
-    return
-end
-fileData = textscan(fileID,'%s','delimiter','\n');
-fileData = fileData{1};
-fclose(fileID);
-% Get total number of scans
-tempstr = textscan(fileData{contains(fileData,'<chromatogramList')},'%s');
-try
-    pid=find(tempstr{1}{2}=='"');
-    chromnum=str2double(tempstr{1}{2}(pid(1)+1:pid(2)-1)); % obtain number of XICs
-catch
-    errordlg(['The file ',file,' is not in the correct format!'],'File Format Error');
-    return
-end
-if ~(chromnum>0)
-    errordlg(['The file ',file,' is not in the correct format!'],'File Format Error');
-    return
-end
-chromdata.peakdata=cell(chromnum,1); % create cells to store chromatography data
-chromdata.mzdata=cell(chromnum,1); % create array to store peak data
-% Get line indices for chromatogram info
-infoidx=find(contains(fileData,'index=')); % start of a new chromatogram
-rtidx=find(contains(fileData,'time array'))+1;
-intidx=find(contains(fileData,'number of detector counts'))+1; % start of intensity records
-if (length(infoidx) ~= chromnum) || (length(rtidx) ~= chromnum) || (length(intidx) ~= chromnum)
-    errordlg(['Number of chromatograms does not match with the data in ',file],'File Content Error');
-    return
-end
-% Get startTimeStamp
-tempstr=textscan(fileData{contains(fileData,'startTimeStamp')},'%s');
-sectstr=tempstr{1};
-timetemp=extractBetween(sectstr(contains(sectstr,'startTimeStamp')),'"','"');
-chromdata.startTimeStamp=timetemp{1};
-% read EICs using a loop
-infoidx=[infoidx;length(fileData)];
-for i=1:chromnum
-    data=textscan(fileData{infoidx(i)},'%s'); % get SRM info
-    pid=find(data{1}{2}=='"');
-    idx=str2double(data{1}{2}(pid(1)+1:pid(2)-1)); % get spectrum index
-    isSRM=contains(data{1},{'SRM','SIM'});
-    if any(isSRM) % if the id method contains 'SRM', then its a SRM XIC. Otherwise it's a TIC.
-        sidx=find(isSRM,1,'first');
-        chromdata.mzdata{idx+1}=[str2double(data{1}{sidx+2}(4:end)) str2double(data{1}{sidx+3}(4:end))]; % parent(Q1) and daughter (Q3) values
+    fileID = fopen(file,'r');
+    if fileID < 0
+        errordlg(['The file ',file,' is not readable!'],'File Open Error');
+        return
     end
-    pid=find(data{1}{end}=='"');
-    peaknum=str2double(data{1}{end}(pid(1)+1:pid(2)-1));
-    chromdata.peakdata{idx+1}=zeros(peaknum,2);
-    % extract RT information for each chromatogram
-    if peaknum > 0
-        for j=infoidx(i)+1:infoidx(i+1)-1
-            if contains(fileData{j},"<binary>")
-                rtdata=fileData{j}(9:end-9); % extract RT info string
-                chromdata.peakdata{idx+1}(:,1)=typecast(zlibdecode(swapbytes(base64decode(rtdata))),'double');
-                intdata=fileData{j+6}(9:end-9); % extract RT info string
-                chromdata.peakdata{idx+1}(:,2)=typecast(zlibdecode(swapbytes(base64decode(intdata))),'double');
-                break;
+    fileData = textscan(fileID,'%s','delimiter','\n');
+    fileData = fileData{1};
+    fclose(fileID);
+    % Get total number of scans
+    tempstr = textscan(fileData{contains(fileData,'<chromatogramList')},'%s');
+    try
+        pid=find(tempstr{1}{2}=='"');
+        chromnum=str2double(tempstr{1}{2}(pid(1)+1:pid(2)-1)); % obtain number of XICs
+    catch
+        errordlg(['The file ',file,' is not in the correct format!'],'File Format Error');
+        return
+    end
+    if ~(chromnum>0)
+        errordlg(['The file ',file,' is not in the correct format!'],'File Format Error');
+        return
+    end
+    % Get line indices for chromatogram info
+    infoidx=find(contains(fileData,'index=')); % start of a new chromatogram
+    rtidx=find(contains(fileData,'time array'))+1;
+    intidx=find(contains(fileData,'number of detector counts'))+1; % start of intensity records
+    if (length(infoidx) ~= chromnum) || (length(rtidx) ~= chromnum) %|| (length(intidx) ~= chromnum)
+        errordlg(['Number of chromatograms does not match with the data in ',file],'File Content Error');
+        return
+    end
+    % Get startTimeStamp
+    tempstr=textscan(fileData{contains(fileData,'startTimeStamp')},'%s');
+    sectstr=tempstr{1};
+    timetemp=extractBetween(sectstr(contains(sectstr,'startTimeStamp')),'"','"');
+    chromdata.startTimeStamp=timetemp{1};
+    % read EICs using a loop
+    MRMnum=length(intidx); % actual MRM numbers
+    chromdata.peakdata=cell(MRMnum,1); % create cells to store chromatography data
+    chromdata.mzdata=cell(MRMnum,1); % create array to store peak data
+    infoidx=[infoidx;length(fileData)];
+    for i=1:MRMnum
+        data=textscan(fileData{infoidx(i)},'%s'); % get SRM info
+        pid=find(data{1}{2}=='"');
+        idx=str2double(data{1}{2}(pid(1)+1:pid(2)-1)); % get spectrum index
+        isSRM=contains(data{1},{'SRM','SIM'});
+        if any(isSRM) % if the id method contains 'SRM', then its a SRM XIC. Otherwise it's a TIC.
+            sidx=find(isSRM,1,'first');
+            chromdata.mzdata{idx+1}=[str2double(data{1}{sidx+2}(4:end)) str2double(data{1}{sidx+3}(4:end))]; % parent(Q1) and daughter (Q3) values
+        end
+        pid=find(data{1}{end}=='"');
+        peaknum=str2double(data{1}{end}(pid(1)+1:pid(2)-1));
+        chromdata.peakdata{idx+1}=zeros(peaknum,2);
+        % extract RT information for each chromatogram
+        if peaknum > 0
+            for j=infoidx(i)+1:infoidx(i+1)-1
+                if contains(fileData{j},"<binary>")
+                    rtdata=fileData{j}(9:end-9); % extract RT info string
+                    chromdata.peakdata{idx+1}(:,1)=typecast(zlibdecode(swapbytes(base64decode(rtdata))),'double');
+                    intdata=fileData{j+6}(9:end-9); % extract RT info string
+                    chromdata.peakdata{idx+1}(:,2)=typecast(zlibdecode(swapbytes(base64decode(intdata))),'double');
+                    break;
+                end
             end
         end
     end
-end
+    % collect data names that are NOT ion chromatagrams
+    chromdata.NonMRM={};
+    listidx=find(contains(fileData,'offset idRef=')); % start of a chromatogram list
+    for i=(MRMnum+1):length(listidx)
+        qid=strfind(fileData{listidx(i)},'"');
+        chromdata.NonMRM=[chromdata.NonMRM;fileData{listidx(i)}((qid(1)+1):(qid(2)-1))];
+    end
 end
 function y = base64decode(x)
 %BASE64DECODE Perform base64 decoding on a string.
