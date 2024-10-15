@@ -10562,7 +10562,11 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range,is_
     end
     % compute the indices of the involved compounds (internal standards first)
     if (compstart==1) && (compend==compnum)
-        compidx=[stdidx setdiff(1:compnum,stdidx)]; 
+        if stdidx > 0
+            compidx=[stdidx setdiff(1:compnum,stdidx)];
+        else
+            compidx=1:compnum;
+        end
     else % only part of the compounds are selected
         if is_temporary && length(compstart:compend)*length(filestart:fileend)==1 % temporary shows the modified peak quantitation info
             compidx=compstart;
