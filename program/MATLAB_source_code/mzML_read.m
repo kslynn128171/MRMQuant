@@ -55,6 +55,7 @@ function chromdata = mzML_read(file)
     chromdata.peakdata=cell(MRMnum,1); % create cells to store chromatography data
     chromdata.mzdata=cell(MRMnum,1); % create array to store peak data
     infoidx=[infoidx;length(fileData)];
+    iskeep=true(1,MRMnum);
     for i=1:MRMnum
         data=textscan(fileData{infoidx(i)},'%s'); % get SRM info
         pid=find(data{1}{2}=='"');
@@ -63,6 +64,8 @@ function chromdata = mzML_read(file)
         if any(isSRM) % if the id method contains 'SRM', then its a SRM XIC. Otherwise it's a TIC.
             sidx=find(isSRM,1,'first');
             chromdata.mzdata{idx+1}=[str2double(data{1}{sidx+2}(4:end)) str2double(data{1}{sidx+3}(4:end))]; % parent(Q1) and daughter (Q3) values
+        elseif i>1
+            iskeep(i)=false;
         end
         pid=find(data{1}{end}=='"');
         peaknum=str2double(data{1}{end}(pid(1)+1:pid(2)-1));
@@ -80,6 +83,9 @@ function chromdata = mzML_read(file)
             end
         end
     end
+    chromdata.mzdata=chromdata.mzdata(iskeep);
+    chromdata.peakdata=chromdata.peakdata(iskeep);
+    MRMnum=sum(iskeep);
     % collect data names that are NOT ion chromatagrams
     chromdata.NonMRM={};
     listidx=find(contains(fileData,'offset idRef=')); % start of a chromatogram list
