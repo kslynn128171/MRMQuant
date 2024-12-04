@@ -1264,15 +1264,6 @@ function change_method(~,~,target,hdlrec,hdlmeth,hdldirinfo)
             errordlg('The compound numbers are different between the MRM data and the method file!','Method File Error','modal'); % show the error message
             return
         end
-%         samp_mz=cell2mat(rec{1}.mz);
-%         los=size(samp_mz,1);
-%         if strcmp(answer,'Yes') % find the matched 
-%             for i=1:length(method.dmz)
-%                 dif=sum(abs(samp_mz-repmat([method.mz(i) method.dmz(i)],los,1)),2);
-%                 keepid=dif<1e-3; % find the samples whos precursor and product ions match with those in the method
-%                 
-%             end
-%         end
         mzdifsep=sum(abs(mzmat1-mzmat2),2);
         is_inconsist=mzdifsep>0.01;
         if any(is_inconsist) % there exhibit inconsistency of compound m/z values between MRM data and the method file
@@ -1294,7 +1285,7 @@ function change_method(~,~,target,hdlrec,hdlmeth,hdldirinfo)
             end
             return;
         end
-        method.IS=[];
+        method.IS={};
         if length(varTypes) >= 6
             method.IS=data(:,6); % Internal Standard
         end
@@ -1323,7 +1314,6 @@ function change_method(~,~,target,hdlrec,hdlmeth,hdldirinfo)
         method.EICidx=zeros(method.nocomp,3); % conversion matrix from EIC index to compound index
         method.indiv_name=cell(method.nocomp,1);
         count=1;
-        method.ISidx=-1;
         % deal with moltiple compounds (isomers) in an EIC 
         for i=1:EICnum 
             name=strsplit(method.orig_name{i},'_'); % split compound names by "_"
@@ -1343,9 +1333,6 @@ function change_method(~,~,target,hdlrec,hdlmeth,hdldirinfo)
             for j=1:length(method.rt{i}) % find the index of internal standard 
                 method.EICidx(count,:)=[count,i,j];
                 method.indiv_name{count}=name{j};
-                if contains(name{j},["(IS)","(Is)","(iS)","(is)"]) % symbol of internal standard in the file
-                    method.ISidx=count;
-                end
                 count=count+1;
             end
         end 
@@ -1877,17 +1864,8 @@ function plot_EIC(objectHandle , ~, par1,par2)
         if para.abs_stc % quantitation via standard curve
             if ~isempty(method.IS)
                 ISID=strcmpi(method.IS{EICid},method.orig_name); % the internal standard of the j-th compound
-                ref_abund1=exp.abundance(:,strcmpi(method.IS{EICid},method.indiv_name));
+                ref_abund1=exp.abundance(:,strcmpi(exp.IS{EICid},exp.indiv_name));
                 ref_abund2=rec{fileid}.abundance{ISID}(1);
-            elseif (method.ISidx~=-1) % absolute quantitation using standard curve
-                if (method.ISidx>0)
-                    tempid=find((method.EICidx(:,2)==method.ISidx) & (method.EICidx(:,3)==1));
-                    ref_abund1=exp.abundance(:,tempid);
-                    ref_abund2=rec{fileid}.abundance{method.ISidx}(1);
-                else
-                    ref_abund1=1;
-                    ref_abund2=1;
-                end
             else
                 ref_abund1=1;
                 ref_abund2=1;
@@ -2756,12 +2734,6 @@ function peak_quantitation_all(hobj, ~,target)
                     if ~isempty(method.IS)
                         ISID=strcmpi(method.orig_name,method.IS{j}); % the internal standard of the j-th compound
                         ref_abund=rec{i}.abundance{ISID}(1);
-                    elseif (method.ISidx~=-1)
-                        if method.ISidx > 0
-                            ref_abund=rec{i}.abundance{exp.EICidx(method.ISidx,2)}(exp.EICidx(method.ISidx,3));
-                        else
-                            ref_abund=1;
-                        end
                     else
                         ref_abund=1;
                     end
@@ -3604,16 +3576,12 @@ function save_quantitation_result(~,~,hdlrec,hdlmeth,hdlastc,hdlpara,opt)
                         compid=compid+1;
                         if compid > stdcompno,break;end
                         nexttile
-                        EICid=method.EICidx(compid,2);
+                        EICid=exp.EICidx(compid,2);
                         % normalize the abundance by internal standard
                         ref_abund1=1;
-                        if ~isempty(method.IS)
-                            ISID=strcmpi(method.orig_name,method.IS{EICid}); % the internal standard of the j-th compound
+                        if ~isempty(exp.IS)
+                            ISID=strcmpi(exp.indiv_name,exp.IS{EICid}); % the internal standard of the j-th compound
                             ref_abund1=exp.abundance(:,ISID);
-                        elseif (method.ISidx~=-1) % absolute quantitation using standard curve
-                            if (method.ISidx>0)
-                                ref_abund1=exp.abundance(:,method.ISidx);
-                            end
                         end
                         ycoord=exp.abundance(:,compid)./ref_abund1;
                         % find the points involve in the regression
@@ -3633,7 +3601,7 @@ function save_quantitation_result(~,~,hdlrec,hdlmeth,hdlastc,hdlpara,opt)
                         hold on
                         line(exp.conc(keepid),y(keepid),'Color','r');
                         set(gca,'XLim',XLim,'YLim',YLim);
-                        title(method.indiv_name{compid});
+                        title(exp.indiv_name{compid});
                     end
                     set(pg_bar,'Position',[0.0 0.0 (1.0*i)/rsize 1.0],'FaceColor','b');
                     pause(0.001);% better than drawnow;
@@ -3692,6 +3660,7 @@ function save_quantitation_result(~,~,hdlrec,hdlmeth,hdlastc,hdlpara,opt)
         set(findobj('Tag','PB_save_result'),'UserData',true,'Enable','off');
         pg_text.String='';
         pause(0.001);% better than drawnow;
+        uiwait(msgbox("The result has been successfully saved!",'File Save',"modal"));
     else
         % denote that the result has not been saved
         set(findobj('Tag','PB_save_result'),'UserData',false,'Enable','on');
@@ -4400,26 +4369,33 @@ function rec = restore_EIC(rec,old_rec,fileid,EICid,peakid,para,ahdl)
     else
         set(hdl(6),'xdata',rec{fileid}.data{EICid}(:,1),'ydata',zeros(size(rec{fileid}.data{EICid}(:,1))),'visible','off');
     end
+    % restore background intensity and S/N ratio
+    set(hdl(7),'xdata',rec{fileid}.data{EICid}(:,1),'ydata',rec{fileid}.bg_int{EICid});
+    set(hdl(8),'xdata',rec{fileid}.data{EICid}(:,1),'ydata',rec{fileid}.bg_int{EICid}*para.sn_ratio);
     % restore title
     ahdl.Title.String=old_rec.title;
     % restore legend
     if get(findobj('Tag','cb_show_legend'),'Value') % show legend
         if sum(old_rec.decomp)>0
-            legend(hdl,{'Expected RT','Original Signal','Smoothed Signal','Detected Compound','Peak Tip Location','Deconvoluated Signal','Min Peak Height(S/N)'});
+            legend(hdl,{'Expected RT','Original Signal','Smoothed Signal','Detected Compound','Peak Tip Location','Deconvoluated Signal','Background Intensity','Min Peak Height(S/N)'});
         else
-            legend(hdl([1:5,7,8]),{'Expected RT','Original Signal','Smoothed Signal','Detected Compound','Peak Tip Location','Min Peak Height(S/N)'});
+            legend(hdl([1:5,7,8]),{'Expected RT','Original Signal','Smoothed Signal','Detected Compound','Peak Tip Location','Background Intensity','Min Peak Height(S/N)'});
         end
     else
         legend('hide');
     end
     % restore the standard curve plot
     chdl=old_rec.ax_stc.Children;
+    maxx=0;maxy=0;
     for i=1:length(chdl)
         if isprop(chdl(i),'XData')
             chdl(i).XData=old_rec.stcx{i};
             chdl(i).YData=old_rec.stcy{i};
+            maxx=max(maxx,max(chdl(i).XData));
+            maxy=max(maxy,max(chdl(i).YData));
         end
     end
+    set(old_rec.ax_stc,'XLim',[0 maxx],'YLim',[0 maxy]);
     % restore plot title
     if para.abs_stc || para.abs_int
         title(old_rec.ax_stc,['\fontsize{12}Concentration = {\color{red}',num2str(old_rec.conc_org,'%.2f'),'}']);
@@ -4471,11 +4447,11 @@ function update_abundance_concentration_plot_in_EIC(hdlrec,hdlmeth,hdlpara,hdlas
         title(ax_stc,['\fontsize{12}Concentration = {\color{red}',num2str(compconc,'%.2f'),'}']);
     elseif para.abs_stc % recompute the concentration and update the standard curve
         % determine whether to normalize the abundance
-        if method.ISidx > 0 % the indices of internal standard are provided
-            EICidtmp=method.EICidx(method.EICidx(:,1)==method.ISidx,2);
-            peakidtmp=method.EICidx(method.EICidx(:,1)==method.ISidx,3);
-            ycoord=rec{fileid}.abundance{EICid}(peakid)/rec{fileid}.abundance{EICidtmp}(peakidtmp);
-            ycoord_ref=exp.abundance(:,compoundid)./exp.abundance(:,exp.ISidx);
+        if ~isempty(method.IS)% the indices of internal standard are provided
+            ISID=strcmpi(method.IS{EICid},method.orig_name); % the internal standard of the j-th compound
+            ycoord=rec{fileid}.abundance{EICid}(peakid)/rec{fileid}.abundance{ISID}(1);
+            ISidx=strcmpi(exp.IS{EICid},exp.indiv_name);
+            ycoord_ref=exp.abundance(:,compoundid)./exp.abundance(:,ISidx);
         else
             ycoord=rec{fileid}.abundance{EICid}(peakid);
             ycoord_ref=exp.abundance(:,compoundid);
@@ -4499,6 +4475,16 @@ function update_abundance_concentration_plot_in_EIC(hdlrec,hdlmeth,hdlpara,hdlas
             elseif (length(xdata)==2) && (xdata(1)==xdata(2)) % vertical line
                 chdl(i).XData = [compconc compconc];
                 chdl(i).YData = YLim;
+            elseif strcmp(chdl(i).Tag,'LN_std_cv')
+                if compconc > exp.conc(end)
+                    if length(xdata) > length(exp.conc)
+                        chdl(i).XData(end)=compconc;
+                        chdl(i).YData(end)=ycoord;
+                    else
+                        chdl(i).XData=[xdata compconc];
+                        chdl(i).YData=[ydata ycoord];
+                    end
+                end
             end
         end
         set(ax_stc,'XLim',XLim,'YLim',YLim);
@@ -4702,7 +4688,7 @@ function rect_selection(~,~,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,hdlimg,fhdl,ah
         ahdl.Toolbar.Visible = 'on';
         return;
     end
-    correction_by_bounds(hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,hdlimg,fhdl,ahdl,rect,false);
+    correction_by_bounds(hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,hdlimg,fhdl,ahdl,rect,true);
 end
 %------------------------------------------------------------------------
 % use keyboard to specified the peak boundaries for peak area correction 
@@ -4829,6 +4815,7 @@ function check_specified_boundaries(hobj,~,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx
     compoundid=vec(2);
     % find the range of the current chromatogram
     rec=hdlrec.UserData;
+    method=hdlmeth.UserData;
     EICid=method.EICidx(method.EICidx(:,1)==compoundid,2);
     rtmin=min(rec{fileid}.data{EICid}(:,1));
     rtmax=max(rec{fileid}.data{EICid}(:,1));
@@ -5903,24 +5890,27 @@ function cursorPos(hobj,~)
     % delete previous rectangle
     rhdl=findobj('tag','temp_rect');
     lhdl=findobj('tag','tip_text');
-    if contains(lower(get(findobj('Tag','PB_quant'),'UserData')),'standard') % quantitation on standard compound data
+    % extract sample names in the heatmap
+    phdl=findobj('Tag','AX_heat_map');
+    snames=phdl.YTickLabel; 
+    % extract testing sample names in the file list
+    sample=get(findobj('Tag','list_file'),'String');
+    % determine whether the heatmap is showing stansard or testing samples
+    if contains(sample{1},snames{1}) && contains(sample{2},snames{2}) && length(sample)==length(snames)
+        % find number of compounds
+        method=get(findobj('Tag','pl_comp'),'UserData');
+        compound=method.indiv_name;
+    else %contains(lower(get(findobj('Tag','PB_quant'),'UserData')),'standard') % quantitation on standard compound data
         % find number of compounds
         method=get(findobj('Tag','rb_abs_stc'),'UserData');
         compound=method.indiv_name;
         % find number of sample files
         sample=method.fname;
-    else % quantitation on standard compound data
-        % find number of compounds
-        method=get(findobj('Tag','pl_comp'),'UserData');
-        compound=method.indiv_name;
-        % find number of sample files
-        fhdl=findobj('Tag','list_file');
-        sample=fhdl.String;
     end
     % load quantation results
     rec=hobj.UserData;
     % get mouse coordinates
-    phdl=findobj('Tag','AX_heat_map');
+    
     phdl=phdl(1);
     coord=get(phdl,'CurrentPoint');
     x=coord(1,1);
@@ -6970,7 +6960,6 @@ function pre_quantitation_check(~,~)
     stddata.indiv_name=compdata.indiv_name;
     stddata.is_show_regression=get(findobj('Tag','cb_view_reg'),'Value');
     stddata.IS=compdata.IS;
-    stddata.ISidx=compdata.ISidx;
     stddata.nocomp=compdata.nocomp;
     stddata.orig_name=compdata.orig_name;
     stddata.rt=compdata.rt;
@@ -7028,8 +7017,9 @@ function compute_standard_curve(hdlrec,hdlmeth,hdlastc,hdlpara)
     pg_bar=findobj('Tag','pg_bar');
     pg_text=findobj('Tag','pg_text');
     for i=1:nop % compute the standard curve for each compound
-        if exp.ISidx > 0 % internal standard is provided
-            ycoord=exp.abundance(:,i)./exp.abundance(:,exp.ISidx);
+        if ~isempty(exp.IS) % internal standard is provided
+            ISID=strcmpi(exp.IS{exp.EICidx(i,2)},exp.indiv_name); % the internal standard of the j-th compound
+            ycoord=exp.abundance(:,i)./exp.abundance(:,ISID);
         else
             ycoord=exp.abundance(:,i);
         end
@@ -7128,7 +7118,7 @@ function show_regression_curves(nod,nop,hdlrec,hdlmeth,hdlpara,hdlastc)
     uicontrol('Parent',regwin, ...
         'Units','normalized', ...
         'BackgroundColor',[0.75 0.75 0.75], ...
-        'Callback',{@show_standard_curve_of_nearby_comps,hdlmeth,hdlastc}, ...
+        'Callback',{@show_standard_curve_of_nearby_comps,hdlastc}, ...
         'Position',[0.655 0.09 0.02 0.88], ...
         'SliderStep',SliderStep,...
         'Style','slider',...        
@@ -7205,7 +7195,7 @@ function show_regression_curves(nod,nop,hdlrec,hdlmeth,hdlpara,hdlastc)
         'Value',0,...
         'Tag','cb_change_v_disp',...
         'Tooltip','Show absolute peak height in the detected peak area');
-    show_standard_curve_of_nearby_comps('','',hdlmeth,hdlastc);
+    show_standard_curve_of_nearby_comps('','',hdlastc);
     set(findall(findobj('Tag','pl_plot'), '-property', 'enable'), 'enable', 'on');
     hdlaxhm=findobj('Tag','AX_heat_map');
     reset_view_file_num('','',hdlaxhm,hdlpara);
@@ -7267,7 +7257,7 @@ function show_individual_standard_curve(~,~,comp_id)
         orgy=result{j}.data{EICid}(:,2);
         maxy=max(maxy,1.05*max(orgy(id1:id2)));
     end   
-    if isempty(findobj('tag','conc_hdl11'))
+    if isempty(findobj('tag','conc_hdl11')) % if no plot of standard curves is selected by the user
         for j=1:min(5,nod) % draw the peak areas of the highlighted compound in the j-th file
             hdl=findobj('Tag',['ax_comp',num2str(j)]);
             if j == min(5,nod)
@@ -7374,12 +7364,11 @@ end
 %--------------------------------------------------------------
 % update the standard curve after a peak area is recomputed
 %--------------------------------------------------------------
-function update_std_result(update_para,hdlrec,hdlmeth,hdlastc)
+function update_std_result(update_para,hdlrec,hdlastc)
     % load quantation results
     result=hdlrec.UserData;
     exp=hdlastc.UserData;
     [fileno,compno]=size(exp.abundance);
-    method=hdlmeth.UserData;
     yorg=[];
     % update standard curves in the window of regression curves
     slhdl1=findobj('Tag','SL_StandCurve');
@@ -7390,8 +7379,13 @@ function update_std_result(update_para,hdlrec,hdlmeth,hdlastc)
             exp.abundance(j,i)=result{j}.abundance{EICid}(peakid);
             exp.used_for_reg(j,i)=~isnan(exp.abundance(j,i));
         end
-        if method.ISidx > 0 % internal standard is provided
-            ycoord=exp.abundance(:,i)./exp.abundance(:,method.ISidx);
+        if ~isempty(exp.IS)
+            ISID=strcmpi(exp.IS{EICid},exp.indiv_name);
+        else
+            ISID=false(size(exp.indiv_name));
+        end
+        if any(ISID) % internal standard is provided
+            ycoord=exp.abundance(:,i)./exp.abundance(:,ISID);
         else
             ycoord=exp.abundance(:,i);
         end
@@ -8531,7 +8525,7 @@ end
 % ----------------------------------------------------------
 % manually adjust the background of a EIC and update the compound abundance
 % ----------------------------------------------------------
-function adjust_background(~,~,hdlrec,hdlmeth,hdlpara,hdlastc,hdlimg,fhdl,ahdl)
+function adjust_background(~,~,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,hdlimg,fhdl,ahdl)
     % find the currect compoind id
     vec=fhdl.UserData;
     fileid=vec(1);
@@ -8545,7 +8539,6 @@ function adjust_background(~,~,hdlrec,hdlmeth,hdlpara,hdlastc,hdlimg,fhdl,ahdl)
     para=hdlpara.UserData;
     % load standard info
     exp=hdlastc.UserData;
-    hdlmtx=findobj('Tag','AX_heat_map');
     % convert current compound id to EIC id and peak id 
     EICid=method.EICidx(compoundid,2);
     peakid=method.EICidx(compoundid,3);
@@ -8972,7 +8965,7 @@ function update_EICs(~,~,update_para)
     % update the regression curves and compound plots in the regression
     % curves window
     if ~isempty(findobj('Tag','reg_result'))
-        update_std_result(update_para,hdlrec,hdlmeth,hdlastc);
+        update_std_result(update_para,hdlrec,hdlastc);
     end
     % reset progress bar
     set(pg_bar,'Position',[0.0 0.0 0.0 0.0],'FaceColor','none')
@@ -9218,7 +9211,6 @@ function update_concentration_and_heatmap_matrix(fileid,compoundid,EICid,hdlrec,
         target='sample';
     end
     nof=length(rec); % number of files
-    noc=method.nocomp; % number of compounds
     % check whether to update compound concentration in multiple files
     % check if the sample file is a QC
     fileids=fileid;
@@ -9226,29 +9218,22 @@ function update_concentration_and_heatmap_matrix(fileid,compoundid,EICid,hdlrec,
         fileids=1:nof;
     end
     % check whether to update compound concentration in multiple compounds
-    is_multi_comp=false;
     compids=compoundid;
-    ISID=-1;
-    % check if the compound is a internal standard
-    if para.abs_int % absolute quantitation via internal standard 
-        % the modified compound is in a QC sample, thus the compound in all files are to be updated.
-        is_multi_comp=ismember(method.indiv_name{compoundid},method.IS);
-        ISID=strcmpi(method.IS{EICid},method.orig_name);
-    elseif para.abs_stc % absolute quantitation via standard curve
-        if ~isempty(method.IS) % the internal standards are specified by names
-            is_multi_comp=ismember(method.indiv_name{compoundid},method.IS);
-            ISID=strcmpi(method.IS{EICid},method.orig_name);
-        elseif (method.ISidx~=-1) % the internal standard is specified by indices
-            is_multi_comp=any(method.ISidx==EICid); % the modified compound is a internal standard, thus all compounds the file are to be updated.
-            ISID=method.ISidx;
-        end
-    end
-    if ~any(ISID)
+    if isempty(method.IS) && para.abs_int % absolute quantitation using internal standard but no internal standard is assigned
         errordlg(['No internal standard name ',method.IS{EICid},' is found in the compound list'],'Internal Standard Error','modal');
         return
     end
+    % check if the compound is a internal standard
+    if isempty(method.IS)
+        ISID=false(size(method.orig_name));
+    else
+        % the modified compound is an internal standard, thus all compounds in the sample are to be updated.
+        is_multi_comp=ismember(method.indiv_name{compoundid},method.IS);
+        ISID=strcmpi(method.IS{EICid},method.orig_name);
+    end
     if is_multi_comp
-        compids=1:noc;
+        ids=find(strcmpi(method.IS{EICid},method.IS));
+        compids=find((method.EICidx(:,2)>=ids(1)) & (method.EICidx(:,2)<=ids(end)));
     end
     peakid=method.EICidx(compoundid,3);
     % update the concentration of compound in differet files based on different experiment types
@@ -9257,18 +9242,20 @@ function update_concentration_and_heatmap_matrix(fileid,compoundid,EICid,hdlrec,
             rec{fileids(i)}.conc_org{EICid}(peakid)=max(0,rec{fileids(i)}.abundance{EICid}(peakid)/rec{fileids(i)}.abundance{ISID}(1)*method.conc(EICid));
             norm_abund=rec{fileids(i)}.abundance{EICid}(peakid)*rec{fileids(i)}.abund_adjust_ratio{EICid}(peakid);
             norm_ref=rec{fileids(i)}.abundance{ISID}(1)*rec{fileids(i)}.abund_adjust_ratio{ISID}(1);
-            rec{fileids(i)}.concentration{EICid}(peakid)=max(0,norm_abund/norm_ref*method.conc(EICid));
-%             % update the heatmap
-%             cmtx(fileids(i),compoundid,1)=rec{fileids(i)}.abundance{EICid}(peakid);
-%             cmtx(fileids(i),compoundid,2)=rec{fileids(i)}.concentration{EICid}(peakid);
             if rec{fileids(i)}.abundance{ISID}<=0 % update the quantation status
                 rec{fileids(i)}.quant_note{EICid}(peakid)=5; % int. std. unquantiable
             end
+            rec{fileids(i)}.concentration{EICid}(peakid)=max(0,norm_abund/norm_ref*method.conc(EICid));
         end
     elseif para.abs_stc % absolute quantitation via standard curve
         for i=1:length(fileids)
-            ref_abund=rec{fileids(i)}.abundance{ISID}(1);
-            ref_ratio=rec{fileids(i)}.abund_adjust_ratio{ISID}(1);
+            if ~any(ISID) % no internal standard is assigned
+                ref_abund=1;
+                ref_ratio=1;
+            else
+                ref_abund=rec{fileids(i)}.abundance{ISID}(1);
+                ref_ratio=rec{fileids(i)}.abund_adjust_ratio{ISID}(1);
+            end
             if strcmpi(target,'sample') % sample data
                 [rec{fileids(i)}.conc_org{EICid}(peakid),flag]=find_conc_from_standard_curve(exp,compoundid,rec{fileids(i)}.abundance{EICid}(peakid)/ref_abund);
                 norm_abund=rec{fileids(i)}.abundance{EICid}(peakid)*rec{fileids(i)}.abund_adjust_ratio{EICid}(peakid);
@@ -9290,11 +9277,6 @@ function update_concentration_and_heatmap_matrix(fileid,compoundid,EICid,hdlrec,
                 rec{fileids(i)}.concentration{EICid}(peakid)=exp.conc(fileid); % set the conentration as expected
             end 
         end
-%     else % relative quantitation
-%         for i=1:length(fileids)
-%             cmtx(fileids(i),compoundid,1)=rec{fileids(i)}.abundance{EICid}(peakid);
-%             cmtx(fileids(i),compoundid,2)=rec{fileids(i)}.abundance{EICid}(peakid)*rec{fileids(i)}.abund_adjust_ratio{EICid}(peakid);
-%         end
     end
     % update the concentration of different compounds in the file based on different experiment types
     if para.abs_int % absolute quantitation via internal standard 
@@ -9305,9 +9287,6 @@ function update_concentration_and_heatmap_matrix(fileid,compoundid,EICid,hdlrec,
             norm_abund=rec{fileid}.abundance{EICidtmp}(peakid)*rec{fileid}.abund_adjust_ratio{EICidtmp}(peakid);
             norm_ref=rec{fileid}.abundance{ISID}(1)*rec{fileid}.abund_adjust_ratio{ISID}(1);
             rec{fileid}.concentration{EICidtmp}(peakid)=max(0,norm_abund/norm_ref*method.conc(EICid));
-%             % update the heatmap
-%             cmtx(fileid,compoundid,1)=rec{fileid}.abundance{EICidtmp}(peakid);
-%             cmtx(fileid,compoundid,2)=rec{fileid}.concentration{EICidtmp}(peakid);
             if rec{fileid}.abundance{ISID}<=0 % update the quantation status
                 rec{fileid}.quant_note{EICidtmp}(peakid)=5; % int. std. unquantiable
             end
@@ -9316,8 +9295,13 @@ function update_concentration_and_heatmap_matrix(fileid,compoundid,EICid,hdlrec,
         for i=1:length(compids)
             EICidtmp=method.EICidx(compids(i),2);
             peakid=method.EICidx(compids(i),3);
-            ref_abund=rec{fileid}.abundance{ISID}(1);
-            ref_ratio=rec{fileid}.abund_adjust_ratio{ISID}(1);
+            if ISID == -1
+                ref_abund=1;
+                ref_ratio=1;
+            else           
+                ref_abund=rec{fileid}.abundance{ISID}(1);
+                ref_ratio=rec{fileid}.abund_adjust_ratio{ISID}(1);
+            end
             if strcmpi(target,'sample') % sample data
                 [rec{fileid}.conc_org{EICidtmp}(peakid),flag]=find_conc_from_standard_curve(exp,compids(i),rec{fileid}.abundance{EICidtmp}(peakid)/ref_abund);
                 norm_abund=rec{fileid}.abundance{EICidtmp}(peakid)*rec{fileid}.abund_adjust_ratio{EICidtmp}(peakid);
@@ -9339,54 +9323,7 @@ function update_concentration_and_heatmap_matrix(fileid,compoundid,EICid,hdlrec,
                 rec{fileid}.concentration{EICidtmp}(peakid)=exp.conc(fileid); % set the conentration as expected
             end 
         end
-%     else % relative quantitation
-%         for i=1:length(compids)
-%             EICidtmp=method.EICidx(compids(i),2);
-%             peakid=method.EICidx(compids(i),3);
-%             cmtx(fileid,compids(i),1)=rec{fileid}.abundance{EICidtmp}(peakid);
-%             cmtx(fileid,compids(i),2)=rec{fileid}.abundance{EICidtmp}(peakid)*rec{fileid}.abund_adjust_ratio{EICidtmp}(peakid);
-%         end
     end
-%     % update the opacity of the heatmap cells
-%     for i=1:length(fileids)
-%         if (rec{fileids(i)}.quant_note{EICid}(peakid)>=3) || isnan(cmtx(fileids(i),compoundid,1)) || isinf(cmtx(fileids(i),compoundid,1))
-%             alpha(fileids(i),compoundid)=0; % unquantifiable
-%         elseif rec{fileids(i)}.quant_note{EICid}(peakid)>0 %ambiguous
-%             alpha(fileids(i),compoundid)=0.2;
-%         else
-%             alpha(fileids(i),compoundid)=1.0; % successful quantitation
-%         end
-%     end
-%     for i=1:length(compids)
-%         EICidtmp=method.EICidx(compids(i),2);
-%         peakid=method.EICidx(compids(i),3);
-%         if (rec{fileid}.quant_note{EICidtmp}(peakid)>=3) || isnan(cmtx(fileid,compids(i),1)) || isinf(cmtx(fileid,compids(i),1))
-%             alpha(fileid,compids(i))=0; % unquantifiable
-%         elseif rec{fileid}.quant_note{EICidtmp}(peakid)>0 %ambiguous
-%             alpha(fileid,compids(i))=0.2;
-%         else
-%             alpha(fileid,compids(i))=1.0; % successful quantitation
-%         end
-%     end
-%     % update the heat map miniature if the EIC window exist
-%     axhdl=findobj('tag','AX_EIC');
-%     if ~isempty(axhdl)
-%         axm=findobj('Tag','AX_miniature'); % get the handle of the miniature
-%         if strcmpi(get(findobj('Tag','PB_TIC_Heat'),'String'),'Show TIC Plot') % heat map is shown
-%             rchdl1=findobj('Tag','sel_rect'); % get the handle of the selected EIC in the heat map
-%             % update heatmap in the the miniature
-%             set(axm,'XLim',hdlmtx.XLim,'YLim',hdlmtx.YLim,'YDir',hdlmtx.YDir,...
-%                 'CLim',hdlmtx.CLim,'Colormap',hdlmtx.Colormap);
-%             set(findobj('Tag','im_heatmap_mini'),'CData',hdlimg.CData)
-%             rchdl2=findobj('Tag','sel_rect_mini'); % get the handle of the selected EIC in the heat map
-%             if isempty(rchdl2)
-%                 rectangle(axm,'Position',rchdl1.Position,'EdgeColor',rchdl1.EdgeColor,'LineWidth',2,'LineStyle','-','Tag','sel_rect_mini');
-%             else
-%                 rchdl2.Position=rchdl1.Position;
-%                 rchdl2.EdgeColor=rchdl1.EdgeColor;
-%             end
-%         end
-%     end
     % update the compound info
     hdlrec.UserData=rec;
     hdlmtx.UserData=cmtx;
@@ -9771,6 +9708,7 @@ function adjust_quantitation_status(~,~,hdlrec,hdlmeth,hdlpara,hdlmtx,hdlimg,fhd
         return
     end
     % update heatmap
+    pg_text=findobj('Tag','pg_text');
     set(pg_text,'String','Updating heatmap...');
     change_heatmap_abundent('','',hdlrec,hdlpara,hdlmtx,hdlimg);
     set(pg_text,'String','');
@@ -9869,8 +9807,7 @@ end
 % adjust the display of standard curves of different compounds according to
 % the slider position
 %--------------------------------------------------------------------------
-function show_standard_curve_of_nearby_comps(hobj,~,hdlmeth,hdlastc)
-    method=hdlmeth.UserData;
+function show_standard_curve_of_nearby_comps(hobj,~,hdlastc)
     exp=hdlastc.UserData;
     nop=exp.nocomp; % number of compounds
     % Reassign the buttondownfcn of the 16 plots
@@ -9885,8 +9822,13 @@ function show_standard_curve_of_nearby_comps(hobj,~,hdlmeth,hdlastc)
         set(axhdl,'NextPlot','add','ButtonDownFcn',{@show_individual_standard_curve,compid});
         % compute abundances from known concentrations normalized for internal 
         % standard and the regression line
-        if method.ISidx > 0 % internal standard is provided
-            ycoord=exp.abundance(:,compid)./exp.abundance(:,method.ISidx);
+        if ~isempty(exp.IS)
+            ISID=strcmpi(exp.IS{exp.EICidx(compid,2)},exp.indiv_name);
+        else
+            ISID=false(size(exp.orig_name));
+        end
+        if any(ISID) % internal standard is provided
+            ycoord=exp.abundance(:,compid)./exp.abundance(:,ISID);
         else
             ycoord=exp.abundance(:,compid);
         end
@@ -10113,10 +10055,6 @@ function remove_point_from_standard_curve(hobj,~,hdlrec,hdlmeth,hdlastc)
     if ~isempty(method.IS)
         ISID=strcmpi(method.IS{EICid},method.orig_name); % the internal standard of the j-th compound
         ref_abund1=exp.abundance(:,ISID);
-    elseif (method.ISidx~=-1) % absolute quantitation using standard curve
-        if (method.ISidx>0)
-            ref_abund1=exp.abundance(:,method.ISidx);
-        end
     end
     ycoord=exp.abundance(:,compid)./ref_abund1;
     % find the points involve in the regression
@@ -10547,9 +10485,6 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range,is_
         % collect involved internal standard names
         involved_intstd_name=uniq_intstd_name(tf);
         [~,stdidx]=ismember(involved_intstd_name,method.indiv_name);
-    elseif (method.ISidx~=-1) % the compound indices of the internal standard are provided
-        involved_intstd_name=method.orig_name(method.ISidx);
-        [~,stdidx]=ismember(involved_intstd_name,method.indiv_name);
     end
     if ~isrow(stdidx) % make sure the indices form a row vector
         stdidx=stdidx';
@@ -10573,8 +10508,6 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range,is_
         elseif is_std_involved % internal standards are involved in the selected compounds
             if ~isempty(method.IS) % internal standards are specified by names
                 tf=ismember(method.IS,involved_intstd_name); %indices of chromatograms whose IS is uniq_int_name{i}
-            else % internal standards are specified by indices
-                tf=ismember(method.ISidx,uniq_intstd_EICidx);
             end
             effected_EICidx=find(tf);
             tempidx=arrayfun(@(x) find(method.EICidx(:,2)==x), effected_EICidx, 'un', 0);
@@ -10625,12 +10558,11 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range,is_
         % ------------------------------------------------------
         % determine index of internal standard of each compound
         % ------------------------------------------------------
-        ISID=-1;
         if para.abs_stc
             if ~isempty(method.IS) % the compound name of the internal standard is provided
                 ISID=strcmpi(method.IS{EICid},method.orig_name); % the internal standard of the j-th compound
-            elseif (method.ISidx~=-1) % the compound index of the internal standard is provided
-                ISID=method.ISidx;
+            else
+                ISID=false(size(method.orig_name));
             end
         elseif para.abs_int
             ISID=strcmpi(method.IS{EICid},method.orig_name);
@@ -10649,12 +10581,12 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range,is_
             else
                 % extract abundance adjust ratios for the current compound and for the
                 % internal standard
-                if ISID ~= -1
+                if any(ISID)
                     ref_adjust_ratio=rec{i}.abund_adjust_ratio{ISID}(1);
                 end
                 % compute original and batch-adjusted concentrations
                 if para.abs_stc
-                    if ISID == -1
+                    if ~any(ISID)
                         ref_abund=1.0;
                         [conc_org,~]=find_conc_from_standard_curve(exp,compidx(j),rec{i}.abundance{EICid}(peaknum));
                     else
@@ -10705,16 +10637,15 @@ function [conc_org,conc_norm]=compute_concentration(fileid,compoundid,is_adjust_
     EICid=method.EICidx(compoundid,2);
     peaknum=method.EICidx(compoundid,3);
     % determine index of internal standard
-    ISID=-1;
     if para.abs_stc
         if ~isempty(method.IS) % the compound name of the internal standard is provided
             ISID=strcmpi(method.IS{EICid},method.orig_name); % the internal standard of the j-th compound
-        elseif (method.ISidx~=-1) % the compound index of the internal standard is provided
-            ISID=method.ISidx;
+        else
+            ISID=false(size(method.orig_name));
         end
     elseif para.abs_int
         ISID=strcmpi(method.IS{EICid},method.orig_name);
-        if ~any(ISID)
+        if ~any(ISID) % internal standard must be assigned
             errordlg(['No internal standard name ',method.IS{EICid},' is found in the compound list'],'Internal Standard Error','modal');
             return
         end
@@ -10723,8 +10654,10 @@ function [conc_org,conc_norm]=compute_concentration(fileid,compoundid,is_adjust_
     % internal standard
     if is_adjust_batch % batch effect correction is performed 
         abund_adjust_ratio=rec{fileid}.abund_adjust_ratio{EICid}(peaknum);
-        if ISID ~= -1
+        if any(ISID)
             ref_adjust_ratio=rec{fileid}.abund_adjust_ratio{ISID}(1);
+        else
+            ref_adjust_ratio=1.0;
         end
     else % batch effect correction is NOT performed 
         abund_adjust_ratio=1.0;
@@ -10733,7 +10666,7 @@ function [conc_org,conc_norm]=compute_concentration(fileid,compoundid,is_adjust_
     % compute original and batch-adjusted concentrations
     if para.abs_stc
         norm_abund=rec{fileid}.abundance{EICid}(peaknum)*abund_adjust_ratio;
-        if ISID == -1
+        if ~any(ISID) % no internal standard is assigned
             ref_abund=1.0;
             [conc_org,~]=find_conc_from_standard_curve(exp,compoundid,rec{fileid}.abundance{EICid}(peaknum));
         else
@@ -11181,13 +11114,11 @@ function detect_by_ref(~,~,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,im,fhdl)
             elseif para.abs_stc % absolute quantitation via standard curve
                 exp=hdlastc.UserData; % get the expected compound info
                 ref_abund=1;
+                norm_ref=rec{i}.abundance{ISID}(1);
                 if ~isempty(method.IS) % the compound name of the internal standard is provided
                     ISID=strcmpi(method.IS{EICid},method.orig_name); % the internal standard of the j-th compound
                     ref_abund=rec{i}.abundance{ISID}(1);
                     norm_ref=rec{i}.abundance{ISID}(1)*rec{i}.abund_adjust_ratio{ISID}(1);
-                elseif (method.ISidx~=-1) % the compound index of the internal standard is provided
-                    ref_abund=rec{i}.abundance{exp.EICidx(method.ISidx,2)}(exp.EICidx(method.ISidx,3));
-                    norm_ref=rec{i}.abundance{exp.EICidx(method.ISidx,2)}(exp.EICidx(method.ISidx,3))*rec{i}.abund_adjust_ratio{exp.EICidx(method.ISidx,2)}(exp.EICidx(method.ISidx,3));
                 end
                 if contains(lower(get(findobj('Tag','PB_quant'),'UserData')),'standard') % quantitation on standard compound data
                     [rec{i}.conc_org{EICid}(peakid),~]=find_conc_from_standard_curve(exp,j,rec{i}.abundance{EICid}(peakid)/ref_abund);
@@ -11255,7 +11186,7 @@ function detect_by_ref(~,~,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,im,fhdl)
         update_para.end_comp=method.nocomp;
         update_para.fileid=fileid;
         update_para.compid=compoundid;
-        update_std_result(update_para,hdlrec,hdlmeth,hdlastc); 
+        update_std_result(update_para,hdlrec,hdlastc); 
     end
     % allow user to save the result
     set(findobj('Tag','PB_save_result'),'UserData',false,'Enable','on');
