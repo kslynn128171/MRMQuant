@@ -994,14 +994,22 @@ function filelist=browse_test_folder(~,~,hdlrec,hdldirinfo)
         for i=1:nof % iteratively read the MRM data from fil(filetype=='both') || (filetype=='es in the specified folder
             if contains(filelist{i},'txt') % the data with the .txt extension
                 try
-                    data=MRM_read_fast([get(edit1,'String'),'\',filelist{i}]); % read MRM data
+                    if ismac || isunix % for Mac OS
+                        data=MRM_read_fast([get(edit1,'String'),'/',filelist{i}]); % read MRM data
+                    else % for windows OS
+                        data=MRM_read_fast([get(edit1,'String'),'\',filelist{i}]); % read MRM data
+                    end
                 catch
                     errordlg(['The file named ',filelist{i},' is not a legitimate MRM file!'],'File Format Error','modal');
                     keepid(i)=false; % the i-th file is not a legitimate .txt file
                 end
             elseif contains(filelist{i},'mzML') % the data with the .mzML extension
                 try
-                    data=mzML_read([get(edit1,'String'),'\',filelist{i}]); % read MRM data
+                    if ismac || isunix % for Mac OS
+                        data=mzML_read([get(edit1,'String'),'/',filelist{i}]); % read MRM data
+                    else % for windows OS
+                        data=mzML_read([get(edit1,'String'),'\',filelist{i}]); % read MRM data
+                    end
                 catch
                     errordlg(['The file named ',filelist{i},' is not a legitimate MRM file!'],'File Format Error','modal');
                     keepid(i)=false; % the i-th file is not a legitimate .mzML file
@@ -6834,14 +6842,22 @@ function filelist=browse_std_folder(~, ~)
             for i=1:nof % iteratively read the EIC data
                 if contains(filelist{i},'txt')
                     try
-                        data=MRM_read_fast([newpath,'\',filelist{i}]); % read MRM data in txt format
+                        if ismac || isunix % for Mac OS
+                            data=MRM_read_fast([get(edit1,'String'),'/',filelist{i}]); % read MRM data
+                        else % for windows OS
+                            data=MRM_read_fast([newpath,'\',filelist{i}]); % read MRM data in txt format
+                        end
                     catch
                         errordlg(['The file named ',filelist{i},' is not a legitimate MRM file!'],'File Format Error','modal');
                         keepid(i)=false;
                     end
                 elseif contains(filelist{i},'mzML')
                     try
-                        data=mzML_read([newpath,'\',filelist{i}]); % read MRM data in mzml format
+                        if ismac || isunix % for Mac OS
+                            data=mzML_read([newpath,'/',filelist{i}]); % read MRM data in mzml format
+                        else % for windows OS
+                            data=mzML_read([newpath,'\',filelist{i}]); % read MRM data in mzml format
+                        end
                     catch
                         errordlg(['The file named ',filelist{i},' is not a legitimate MRM file!'],'File Format Error','modal');
                         keepid(i)=false;
