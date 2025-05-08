@@ -710,7 +710,7 @@ function MRMQuant_func(para)
     colorbar(ax1,'off');
     ax2 = axes('Parent',pl_plot, ... % axes to plot TIC
         'NextPlot','replacechildren', ...
-        'Position',[0.05 0.13 0.9 0.82], ...
+        'Position',[0.05 0.13 0.9 0.78], ...
         'Clipping','on',...
         'Tag','AX_TIC_plot', ...
         'Visible','on', ...
@@ -773,7 +773,8 @@ function MRMQuant_func(para)
         'String','Show Heat Map', ...
         'Style','togglebutton',...
         'Tag','PB_TIC_Heat',...
-        'Tooltip','Show heat map of the quantitation result');
+        'Tooltip','Show heat map of the quantitation result',...
+        'UserData',[0,0]);
     % Activate Inspection Mode
     uicontrol('Parent',pl_plot, ...
         'Units','normalized', ...
@@ -979,8 +980,10 @@ function filelist=browse_test_folder(~,~,hdlrec,hdldirinfo)
         hdldirinfo.UserData={pwd;newpath};
         % clear existing quantitation results
         clear_existing_results;
+        % show complete path of the file in the edit window
         edit1=findobj('Tag','edit_dir');
         edit1.String=newpath;
+        % show file list in the listbox
         list1=findobj('Tag','list_file');
         list1.String=filelist;
         list1.Value=1;
@@ -1082,6 +1085,7 @@ function filelist=browse_test_folder(~,~,hdlrec,hdldirinfo)
             filelist=filelist(fileorder);
             rec=rec(fileorder);
         end
+        % update the file list in the listbox
         list1.String=filelist;
         list1.Value=1;
         set(list1,'min',0,'max',1,'value',1);
@@ -1089,11 +1093,12 @@ function filelist=browse_test_folder(~,~,hdlrec,hdldirinfo)
         if para.abs_stc % make a copy of the data
             set(findobj('tag','pl_file'),'UserData',rec); 
         end
+        % enable the method window
         set(findall(findobj('Tag','pl_comp'),'-property','enable'),'enable','on');
         set(findobj('Tag','SL_plot_v'),'UserData',[nof para.file_num]);
         set(pg_bar,'Position',[0.0 0.0 0.0 1.0],'FaceColor','b')
         pg_text.String='';
-        change_plot('','','TIC');%plot_TIC();
+        change_plot('','','TIC');
     else % no legitimate file is found in the folder
         set(findall(findobj('Tag','pl_comp'),'-property','enable'),'enable','off');
         set(findall(findobj('Tag','pl_para'),'-property','enable'),'enable','off');
@@ -1132,6 +1137,7 @@ function change_method(~,~,target,hdlrec,hdlmeth,hdldirinfo)
     cd(dirinfo{2});
     [file,path] = uigetfile({'*.txt;*.csv'});
     if file == 0 % no file is selected
+        cd(dirinfo{1});
         return
     end
     [~,~,ext] = fileparts(file);
@@ -1355,7 +1361,7 @@ function change_method(~,~,target,hdlrec,hdlmeth,hdldirinfo)
             hdlmeth.UserData=method;
             set(findobj('Tag','PB_new'),'UserData',[file,path]);
             set(findobj('Tag','PB_modify'), 'enable', 'on');
-            change_plot('','','TIC');%plot_TIC();
+            change_plot('','','TIC');
             % check if the XIC data is given
             filelist=get(findobj('Tag','list_file'),'String');
             % if both MRM data and the method file are provided, enable the
@@ -1437,64 +1443,142 @@ end
 %--------------------------------------------------------------
 function plot_TIC(~,~)
     axhdl=findobj('Tag','AX_TIC_plot');
-    fileid=axhdl.UserData;
     % find number of sample files and the selected file
-    lhdl=findobj('Tag','list_file');
-    idx=lhdl.Value;
-    textid=findobj('Tag','txt_peak'); % show compound info in TIC
-    quant_state=lower(get(findobj('Tag','PB_quant'),'UserData'));
+    if contains(lower(get(findobj('Tag','PB_quant'),'UserData')),'standard') % quantitation on standard compound data
+        exp=get(findobj('Tag','rb_abs_stc'),'UserData');
+        filelist=exp.fname;
+    else % quantitation on testing data
+        filelist=get(findobj('Tag','list_file'),'String');
+    end
+    % find number of sample files and the selected file
+    curidx=get(findobj('Tag','PB_TIC_Heat'),'UserData');
+    fileid=curidx(1);
+    if fileid == 0
+        idx=1;
+    else
+        idx=fileid;
+    end
+    %textid=findobj('Tag','txt_peak'); % show compound info in TIC
+    %quant_state=lower(get(findobj('Tag','PB_quant'),'UserData'));
     % load standard compound info
     method=get(findobj('Tag','pl_comp'),'UserData');
-    if ~isempty(method) && (fileid==idx) && ...% the TIC has been drawn before
-            ((isempty(textid) && strcmpi(quant_state,'new')) || (~isempty(textid) && ~strcmpi(quant_state,'new')))
-        set(findobj('Tag','SL_plot_h'),'Enable','off','Visible','on'); % disable the horizontal slider
-        set(findobj('Tag','SL_plot_v'),'Enable','off','Visible','on'); % disable the vertical slider
-        return
-    end
+    % if ~isempty(method) && (fileid==idx) && ...% the TIC has been drawn before
+    %         ((isempty(textid) && strcmpi(quant_state,'new')) || (~isempty(textid) && ~strcmpi(quant_state,'new')))
+    %     set(findobj('Tag','SL_plot_h'),'Enable','off','Visible','on'); % disable the horizontal slider
+    %     set(findobj('Tag','SL_plot_v'),'Enable','off','Visible','on'); % disable the vertical slider
+    %     return
+    % end
     % get the axes handle
-    cla(axhdl);
     % load quantation results
     rec=get(findobj('Tag','MRM_Quant'),'UserData');
     % prepare the progress bar
     pg_bar=findobj('Tag','pg_bar');
     pg_text=findobj('Tag','pg_text');
-    % start drawing
-    % plot original TIC
-    stem(axhdl,rec{idx}.tic(:,1),rec{idx}.tic(:,2),'markersize',1,'color','k','tag','TIC_signal');
+    % extract the title of the current LC plot
+    tstr=axhdl.Title.String;
+    % extract the file name in the title
+    filestr=strrep(tstr,'TIC of ','');
+    % check whether a TIC plot exists
+    phdl=findobj('tag','TIC_signal');
+    if isempty(phdl) % no TIC plot exist
+        stem(axhdl,rec{idx}.tic(:,1),rec{idx}.tic(:,2),'markersize',1,'color','k','tag','TIC_signal');
+        % update the title
+        set(axhdl.Title,'String',['TIC of ', filelist{idx}],'Interpreter','none','FontSize',14);
+    end
+    % check whether the current TIC in the plot is the same as the one to be ploted
+    if ~strcmpi(filestr,filelist{idx}) % the file names are different, update the existing plot
+        set(phdl,'XData',rec{idx}.tic(:,1),'YData',rec{idx}.tic(:,2));
+        % update the title
+        set(axhdl.Title,'String',['TIC of ', filelist{idx}],'Interpreter','none','FontSize',14);
+    end
+    adjy=1.05*max(1,max(rec{idx}.tic(:,2)));
+    set(axhdl,'YLim',[0 adjy]);
     hold on
+    thdl=findobj('Tag','txt_peak');
+    isRedraw=false;
+    if isempty(thdl)
+        isRedraw=true;
+    end
+    lhdl=findobj('-regexp','Tag','@');
     if ~isempty(method) % compound info has been provided
         % draw compound info
-        adjy=max(1,max(rec{idx}.tic(:,2)))*1.2;
         compnum=length(method.rt);
+        set(thdl,'Visible','off');
+        count=1;
         for i=1:compnum % combine spectra of all compounds
             peaknum=length(method.rt{i});
             for j=1:peaknum
                 if method.rt{i}(j) > 0
                     compid=find((method.EICidx(:,2)==i) & (method.EICidx(:,3)==j));
-                    line(axhdl,[method.rt{i}(j)'; method.rt{i}(j)'],repmat([0;adjy],1,peaknum),'color',[0.7 0.7 0.7],'linewidth',1,'tag',char(strtrim(method.indiv_name{compid}),[' @ ',num2str(method.rt{i}(j))]));
-                    h=text(axhdl,method.rt{i}(j),0.6*adjy,char(method.indiv_name{compid},[' @ ',num2str(method.rt{i}(j))]),'rotation',90,'fontsize',12,'Interpreter','none','clipping','on');
-                    ext=get(h,'extent');
-                    if isempty(findobj('Tag','im_heatmap')) % quantitation has not been performed
-                        set(h,'position',[method.rt{i}(j),adjy-ext(4)],'color',[0 0 0]);
-                    else % quantitation is finished
-                        set(h,'position',[method.rt{i}(j),adjy-ext(4)],'color',[0 0 1],'ButtonDownFcn',{@TIC_select_compound ,idx, compid},'tag','txt_peak');
+                    if isRedraw
+                        line(axhdl,[method.rt{i}(j)'; method.rt{i}(j)'],[0;adjy],'color',[0.7 0.7 0.7],...
+                            'linewidth',1,'tag',char(strtrim(method.indiv_name{compid}),[' @ ',num2str(method.rt{i}(j))]));
+                        h=text(axhdl,method.rt{i}(j),0.8*adjy,char(method.indiv_name{compid},[' @ ',num2str(method.rt{i}(j))]),...
+                            'rotation',90,'fontsize',12,'Interpreter','none','clipping','on','tag','txt_peak',...
+                            'HorizontalAlignment','left','Visible','off');
+                        ext=get(h,'extent');
+                        if isempty(findobj('Tag','im_heatmap')) % quantitation has not been performed
+                            set(h,'position',[method.rt{i}(j),adjy-1.01*ext(4)],'color',[0 0 0],'Visible','on');
+                        else % quantitation is finished
+                            set(h,'position',[method.rt{i}(j),adjy-1.01*ext(4)],'color',[0 0 1],...
+                                'ButtonDownFcn',{@TIC_select_compound ,idx, compid},'Visible','on');
+                        end
+                    else
+                        % update an existing line
+                        set(lhdl(count),'XData',[method.rt{i}(j); method.rt{i}(j)],'YData',[0;adjy])
+                        % update an existing text
+                        set(thdl(count),'position',[method.rt{i}(j),0.8*adjy],...
+                            'String',char(method.indiv_name{compid},[' @ ',num2str(method.rt{i}(j))]),...
+                            'HorizontalAlignment','left','Visible','off');
+                        ext=get(thdl(count),'extent');
+                        if isempty(findobj('Tag','im_heatmap')) % quantitation has not been performed
+                            set(thdl(count),'position',[method.rt{i}(j),adjy-1.01*ext(4)],'color',[0 0 0],'Visible','on');
+                        else % quantitation is finished
+                            set(thdl(count),'position',[method.rt{i}(j),adjy-1.01*ext(4)],'color',[0 0 1],...
+                                'ButtonDownFcn',{@TIC_select_compound ,idx, compid},'Visible','on');
+                        end
+                        count=count+1;
                     end
                 end
             end
             if rem(i,40)==0 % show the progress every 40 compounds
                 set(findobj('Tag','pg_bar'),'Position',[0.0 0.0 (1.0*i)/(compnum) 1.0],'FaceColor','b');
-                thdl=findobj('Tag','pg_text');
-                thdl.String=['Annotating ',num2str(i),'/',num2str(compnum),' of Compounds in TIC (',num2str(100.0*i/(compnum),'%5.2f'),' %) finished!'];
-                ext=thdl.Extent;
-                set(thdl,'pos',[0.5-ext(3)/2,0.5]);
+                mhdl=findobj('Tag','pg_text');
+                mhdl.String=['Annotating ',num2str(i),'/',num2str(compnum),' of Compounds in TIC (',num2str(100.0*i/(compnum),'%5.2f'),' %) finished!'];
+                ext=mhdl.Extent;
+                set(mhdl,'pos',[0.5-ext(3)/2,0.5]);
                 pause(0.001);
             end
         end
         axhdl.UserData=idx;
     end
-    chi=get(axhdl, 'Children');
+    % draw the selected peak
+    compidx=curidx(2);
+    if compidx > 0
+        hdl1=findobj('Tag','sel_line');
+        hdl2=findobj('Tag','sel_name');
+        EICid=method.EICidx(compidx,2);
+        RTidx=method.EICidx(compidx,3);
+        xidx=method.rt{EICid}(RTidx);
+        if isempty(hdl1) % redraw the line and text
+            line(axhdl,[xidx xidx],[0 adjy],'color',[1 0 0],'linewidth',2,'tag','sel_line');
+            h=text(axhdl,'Position',[method.rt{EICid}(RTidx),0.8*adjy],...
+                'String',char(method.indiv_name{compidx},[' @ ',num2str(method.rt{EICid}(RTidx))]),...
+                'color',[1 0 0],'rotation',90,'fontsize',12,'Interpreter','none','clipping','on',...
+                'tag','sel_name','HorizontalAlignment','left','Visible','off');
+            ext=get(h,'extent');
+            set(h,'position',[method.rt{EICid}(RTidx),adjy-1.01*ext(4)],'Visible','on');
+        else
+            set(hdl1,'XData',[xidx xidx],'YData',[0 adjy]);
+            set(hdl2,'position',[method.rt{EICid}(RTidx),0.8*adjy],'String',char(method.indiv_name{compidx},[' @ ',num2str(method.rt{EICid}(RTidx))]),...
+                'HorizontalAlignment','left','Visible','off');
+            ext=get(hdl2,'extent');
+            set(hdl2,'position',[method.rt{EICid}(RTidx),adjy-1.01*ext(4)],'Visible','on');
+        end
+    end
+    %chi=get(axhdl, 'Children');
     %Reverse the stacking order so that the patch overlays the line
-    set(axhdl, 'Children',flipud(chi))
+    %set(axhdl, 'Children',flipud(chi))
     axis('tight');
     set(findobj('Tag','SL_plot_h'),'Enable','off','Visible','on'); % disable the horizontal slider
     set(findobj('Tag','SL_plot_v'),'Enable','off','Visible','on'); % disable the vertical slider
@@ -1602,27 +1686,29 @@ function plot_EIC(objectHandle , ~, par1,par2)
                 end
                 stem(axm,rec{fileid}.tic(:,1),rec{fileid}.tic(:,2),'markersize',1,'color','k','tag','TIC_mini');
                 line(axm,lhdl.XData,lhdl.YData,'Color','r','linewidth',2,'tag','sel_line_mini');
-                set(findobj('Tag','PB_prev_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the previous file
-                set(findobj('Tag','PB_next_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the next file
+                % set(findobj('Tag','PB_prev_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the previous file
+                % set(findobj('Tag','PB_next_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the next file
             else
                 imagesc(axm,'CData',hdlimg.CData,'AlphaData',hdlimg.UserData,'Tag','im_heatmap_mini');
                 rectangle(axm,'Position',rchdl1.Position,'EdgeColor',rchdl1.EdgeColor,'LineWidth',2,'LineStyle','-','Tag','sel_rect_mini');
-                set(findobj('Tag','PB_prev_samp'),'Visible','on'); % in the heatmap mode, it is allowed to browse the previous file
-                set(findobj('Tag','PB_next_samp'),'Visible','on'); % in the heatmap mode, it is allowed to browse the next file
+                % set(findobj('Tag','PB_prev_samp'),'Visible','on'); % in the heatmap mode, it is allowed to browse the previous file
+                % set(findobj('Tag','PB_next_samp'),'Visible','on'); % in the heatmap mode, it is allowed to browse the next file
             end
             set(axm,'XTick','','XLim',hdlmtx.XLim,'YTick','','YLim',hdlmtx.YLim,...
                 'YDir',hdlmtx.YDir,'CLim',hdlmtx.CLim,'Colormap',hdlmtx.Colormap);
         else % update the miniature
             if strcmpi(fromwhere,'TIC') % update TIC in the the miniature
+                set(findobj('Tag','TIC_mini'),'XData',rec{fileid}.tic(:,1),'YData',rec{fileid}.tic(:,2));
+                maxy=1.01*max(rec{fileid}.tic(:,2));
                 lhdl2=findobj('Tag','sel_line_mini'); % get the handle of the selected EIC in the heat map
                 if isempty(lhdl2)
-                    line(axm,lhdl1.XData,axm.YLim,'Color','r','linewidth',2,'tag','sel_line_mini');
+                    line(axm,lhdl1.XData,[0 maxy],'Color','r','linewidth',2,'tag','sel_line_mini');
                 else
-                    lhdl2.XData=lhdl1.XData;
-                    lhdl2.YData=lhdl1.YData;
+                    set(lhdl2,'XData',lhdl1.XData,'YData',[0 maxy]);
+                    set(axm,'YLim',[0 maxy]);
                 end
-                set(findobj('Tag','PB_prev_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the previous file
-                set(findobj('Tag','PB_next_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the next file
+                % set(findobj('Tag','PB_prev_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the previous file
+                % set(findobj('Tag','PB_next_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the next file
             else % update heatmap in the the miniature
                 rchdl2=findobj('Tag','sel_rect_mini'); % get the handle of the selected EIC in the heat map
                 if isempty(rchdl2)
@@ -1631,18 +1717,18 @@ function plot_EIC(objectHandle , ~, par1,par2)
                     rchdl2.Position=rchdl1.Position;
                     rchdl2.EdgeColor=rchdl1.EdgeColor;
                 end
-                set(findobj('Tag','PB_prev_samp'),'Visible','on'); % in the heatmap mode, it is allowed to browse the previous file
-                set(findobj('Tag','PB_next_samp'),'Visible','on'); % in the heatmap mode, it is allowed to browse the next file
+                % set(findobj('Tag','PB_prev_samp'),'Visible','on'); % in the heatmap mode, it is allowed to browse the previous file
+                % set(findobj('Tag','PB_next_samp'),'Visible','on'); % in the heatmap mode, it is allowed to browse the next file
+                % update the plot range and colormap
+                set(axm,'XLim',hdlmtx.XLim,'YLim',hdlmtx.YLim,'YDir',hdlmtx.YDir,...
+                    'CLim',hdlmtx.CLim,'Colormap',hdlmtx.Colormap);
             end
-            % update the plot range and colormap
-            set(axm,'XLim',hdlmtx.XLim,'YLim',hdlmtx.YLim,'YDir',hdlmtx.YDir,...
-                'CLim',hdlmtx.CLim,'Colormap',hdlmtx.Colormap);
             % update the plots of neighboring compounds if the 'more>' is pressed
             show_compound_in_nearby_files('','',fileid,compoundid,hdlrec,hdlmeth,'',true);
         end
         % show designated compound location
         dlen=length(rec{fileid}.data{EICid}(:,2)); % EIC data length
-        maxy=max(1,1.05*max(rec{fileid}.data{EICid}(:,2))); % EIC max data height
+        maxy=max(1,1.01*max(rec{fileid}.data{EICid}(:,2))); % EIC max data height
         miny=0;
         maxstdy=0;
         for i=1:peaknum % determine the height of the EIC plot and check the RTs of the designated compounds
@@ -1788,17 +1874,17 @@ function plot_EIC(objectHandle , ~, par1,par2)
             if i > hdllen
                 % generate peak notation
                 set(ax,'YLim',[0 adjy]);
-                h=text(ax,method.rt{EICid}(i)+0.01,0.8*adjy,str,'rotation',90,'fontsize',12);
+                h=text(ax,method.rt{EICid}(i)+0.01,0.8*adjy,str,'rotation',90,'fontsize',12,'HorizontalAlignment','left','Visible','off');
                 ext=get(h,'extent');
-                set(h,'pos',[method.rt{EICid}(i)+0.01,adjy-1.05*ext(4)],'color',strcolor,'tag','lc_hdl1_tx');
+                set(h,'pos',[method.rt{EICid}(i)+0.01,adjy-1.01*ext(4)],'color',strcolor,'tag','lc_hdl1_tx','Visible','on');
                 fill(ax,[xl xl xr xr xl],[0 adjy adjy 0 0],[0.8 0.8 0.8],...
                     'FaceAlpha',0.3,'LineStyle','none','tag','lc_hdl1_reg');
             else
                 % update existing pea notation
                 set(ax,'YLim',[0 adjy]);
-                set(hdltx(i),'String',str,'Position',[method.rt{EICid}(i)+0.01,0.8*adjy]);
+                set(hdltx(i),'String',str,'Position',[method.rt{EICid}(i)+0.01,0.8*adjy],'HorizontalAlignment','left','Visible','off');
                 ext=get(hdltx(i),'extent');
-                set(hdltx(i),'String',str,'Position',[method.rt{EICid}(i)+0.01,adjy-1.05*ext(4)],'color',strcolor,'Visible','on');
+                set(hdltx(i),'String',str,'Position',[method.rt{EICid}(i)+0.01,adjy-1.01*ext(4)],'color',strcolor,'Visible','on');
                 set(hdlreg(i),'XData',[xl xl xr xr xl],'YData',[0 adjy adjy 0 0],'Visible','on');
             end
         end
@@ -1845,9 +1931,9 @@ function plot_EIC(objectHandle , ~, par1,par2)
         elseif (maxy <= miny) 
             maxy = miny + 1.0;
         end
-        cb_show_detail.UserData=[minx maxx miny 1.05*maxy];
+        cb_show_detail.UserData=[minx maxx miny 1.01*maxy];
         if cb_show_detail.Value
-            axis([minx maxx miny 1.05*maxy]);
+            axis([minx maxx miny 1.01*maxy]);
         else
             axis('tight');
         end
@@ -1940,7 +2026,7 @@ function plot_EIC(objectHandle , ~, par1,par2)
             if maxy == 0
                 YLim=[0 1];
             else
-                YLim=[0 1.05*maxy];
+                YLim=[0 1.01*maxy];
             end
             % regression line
             tempid=findobj('tag','LN_reg');
@@ -2015,6 +2101,8 @@ function plot_EIC(objectHandle , ~, par1,par2)
     end
     % update the location of the current select compound in the heatmap
     set(fig,'UserData',[fileid,compoundid]);
+    set(findobj('Tag','PB_TIC_Heat'),'UserData',[fileid,compoundid]);
+    %set(AX_TIC_plot,'UserData',fileid);
 end
 %--------------------------------------------------------------
 % generate title for a EIC plot
@@ -2155,7 +2243,7 @@ function fig=create_EIC_window(fromwhere,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,h
         'Position',[0.84 0.8 0.14 0.19], ...
         'Style','pushbutton',....
         'ToolTip','Show overlapping peaks as the same size as the indiv. peaks.');
-    % prepare the image fot the button
+    % prepare the image for the button
     [img,~,alpha]=imread('suppress.png');
     img = im2double(img);
     alpha = im2double(alpha);
@@ -2169,7 +2257,7 @@ function fig=create_EIC_window(fromwhere,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,h
         'Position',[0.84 0.60 0.14 0.19], ...
         'Style','pushbutton',....
         'ToolTip','Show expanded peaks by displaying the peaks only.');
-    % prepare the image fot the button
+    % prepare the image for the button
     [img,~,alpha]=imread('expand.png');
     img = im2double(img);
     alpha = im2double(alpha);
@@ -2183,7 +2271,7 @@ function fig=create_EIC_window(fromwhere,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,h
         'Position',[0.84 0.40 0.14 0.19], ...
         'Style','pushbutton',....
         'ToolTip','Show normalzed peaks.');
-    % prepare the image fot the button
+    % prepare the image for the button
     [img,~,alpha]=imread('normalize.png');
     img = im2double(img);
     alpha = im2double(alpha);
@@ -2197,7 +2285,7 @@ function fig=create_EIC_window(fromwhere,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,h
         'Position',[0.84 0.20 0.14 0.19], ...
         'Style','pushbutton',....
         'ToolTip','Show resumed peaks.');
-    % prepare the image fot the button
+    % prepare the image for the button
     [img,~,alpha]=imread('resume.png');
     img = im2double(img);
     alpha = im2double(alpha);
@@ -2461,7 +2549,7 @@ function fig=create_EIC_window(fromwhere,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,h
             for i=1:compnum % combine spectra of all compounds
                 rtnum=length(method.rt{i});
                 xcord(sidx:(sidx+rtnum-1))=method.rt{i};
-                ycord(sidx:(sidx+rtnum-1))=1.2*max(rec{idx}.tic(:,2))*ones(rtnum,1);
+                ycord(sidx:(sidx+rtnum-1))=1.01*max(rec{idx}.tic(:,2))*ones(rtnum,1);
                 sidx=sidx+rtnum;
             end
             xcord=xcord(xcord>0);
@@ -2470,8 +2558,8 @@ function fig=create_EIC_window(fromwhere,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,h
         end
         % plot original TIC
         stem(axm,rec{idx}.tic(:,1),rec{idx}.tic(:,2),'markersize',1,'color','k');
-        set(findobj('Tag','PB_prev_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the previous file
-        set(findobj('Tag','PB_next_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the next file
+        % set(findobj('Tag','PB_prev_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the previous file
+        % set(findobj('Tag','PB_next_samp'),'Visible','off'); % in the TIC plot mode, it is forbidden to browse the next file
         axis(axm,'tight');
     else %called by clicking on a heat map
         % generate the miniature of the heat map
@@ -2615,10 +2703,14 @@ function peak_quantitation_all(hobj, ~,target)
         fileno=length(filelist);
         fhdl=findobj('Tag','tbl_std_file');
         save_result=false;
-        set(findobj('Tag','PB_TIC_Heat'),'Enable','off');
+        set(findobj('Tag','PB_TIC_Heat'),'Enable','off','UserData',[0,0]);
     end
     nos=length(method.rt);
     name=find_representative_name(filelist);
+    % initialize LC plot
+    axtic=findobj('Tag','AX_TIC_plot');
+    cla(axtic);
+    axtic.UserData=0;
     % initialize heat map
     change_plot('','','HeatMap');
     % disable the functions during computation
@@ -4433,7 +4525,7 @@ function update_abundance_concentration_plot_in_EIC(hdlrec,hdlmeth,hdlpara,hdlas
         if (maxy == 0) || isnan(maxy)
             YLim=[0 1];
         else
-            YLim=[0 1.05*maxy];
+            YLim=[0 1.01*maxy];
         end
         for i=1:length(chdl) % update the standatd curve plot
             if contains(class(chdl(i)),'Line')
@@ -4472,7 +4564,7 @@ function update_abundance_concentration_plot_in_EIC(hdlrec,hdlmeth,hdlpara,hdlas
         if maxy == 0
             YLim=[0 1];
         else
-            YLim=[0 1.05*maxy];
+            YLim=[0 1.01*maxy];
         end
         for i=1:length(chdl) % update the standatd curve plot
             xdata=chdl(i).XData;
@@ -5725,6 +5817,7 @@ function clear_existing_results()
     set(findobj('Tag','tbl_comp_list'),'Data',[]); % clear compound list
     set(findobj('Tag','cb_normal'),'UserData',1);% set the batch effect correction to on
     set(findobj('Tag','AX_TIC_plot'),'UserData',0); % clear current file index
+    set(findobj('Tag','PB_TIC_Heat'),'UserData',[0,0]); % clear current file index
     % clear previous quantitation results
     rec=mainwin.UserData;
     if ~isempty(rec)
@@ -6099,6 +6192,8 @@ function change_EIC(hobj,~,direct,hdlmeth,hdlastc,hdlaxhm,hdlimg)
         if strcmpi(hdlaxhm.Tag,'AX_heat_map')
             hdlaxhm=findobj('Tag','AX_TIC_plot');
         end
+        xlim=hdlaxhm.XLim;
+        ylim=hdlaxhm.YLim;
         hdl1=findobj('Tag','sel_line'); % handle of selected compound location lines
         hdl2=findobj('Tag','sel_name'); % handle of selected compound names
         if ~isempty(hdl1) && ~isempty(hdl2)
@@ -6135,14 +6230,16 @@ function change_EIC(hobj,~,direct,hdlmeth,hdlastc,hdlaxhm,hdlimg)
                         shdl=findobj('Tag','SL_plot_h');% change the horizontal slider
                         shdl.Value=min(1,shdl.Value+(1/(compnum-(xlim(2)-xlim(1)))));
                     end
+                    % update the EIC plot
+                    plot_EIC(hdlimg,'',fileid,compid+1);
                 else % the current plot is TIC
-                    set(hdl1,'XData',[rtvec(compid+1) rtvec(compid+1)]); % move the select line
-                    set(hdl2,'String',char(strtrim(method.indiv_name{compid+1}),[' @ ',num2str(rtvec(compid+1))])); % restore the color of the previous compound name
+                    set(hdl1,'XData',[rtvec(compid+1) rtvec(compid+1)],'YData',[0 ylim(2)]); % move the select line
+                    set(hdl2,'String',char(strtrim(method.indiv_name{compid+1}),[' @ ',num2str(rtvec(compid+1))]),'HorizontalAlignment','left','Visible','off'); % restore the color of the previous compound name
                     ext=get(hdl2,'extent');
-                    set(hdl2,'position',[rtvec(compid+1),hdl1.YData(2)-ext(4)]);
+                    set(hdl2,'position',[rtvec(compid+1),ylim(2)-1.01*ext(4)],'Visible','on');
+                    % update the EIC plot
+                    plot_EIC(hdl2,'',fileid,compid+1);
                 end
-                % update the EIC plot
-                plot_EIC(hdlimg,'',fileid,compid+1);
             else % the current compound is greater than the total compound number
                 set(hobj,'BackgroundColor','r'); % change the direct button color to red
             end
@@ -6163,13 +6260,16 @@ function change_EIC(hobj,~,direct,hdlmeth,hdlastc,hdlaxhm,hdlimg)
                         shdl=findobj('Tag','SL_plot_h');% change the horizontal slider
                         shdl.Value=max(0,shdl.Value-(1/(compnum-(xlim(2)-xlim(1)))));
                     end
+                    % update the EIC plot
+                    plot_EIC(hdlimg,'',fileid,compid-1);
                 else
-                    set(hdl1,'XData',[rtvec(compid-1) rtvec(compid-1)]); % move the select line
-                    set(hdl2,'String',char(strtrim(method.indiv_name{compid-1}),[' @ ',num2str(rtvec(compid-1))])); % restore the color of the previous compound name
+                    set(hdl1,'XData',[rtvec(compid-1) rtvec(compid-1)],'YData',[0 ylim(2)]); % move the select line
+                    set(hdl2,'String',char(strtrim(method.indiv_name{compid-1}),[' @ ',num2str(rtvec(compid-1))]),'HorizontalAlignment','left','Visible','off'); % restore the color of the previous compound name
                     ext=get(hdl2,'extent');
-                    set(hdl2,'position',[rtvec(compid-1),hdl1.YData(2)-ext(4)]);
+                    set(hdl2,'position',[rtvec(compid-1),ylim(2)-1.01*ext(4)],'Visible','on');
+                    % update the EIC plot
+                    plot_EIC(hdl2,'',fileid,compid-1);
                 end
-                plot_EIC(hdlimg,'',fileid,compid-1);
             else
                 set(hobj,'BackgroundColor','r');
             end
@@ -6190,12 +6290,18 @@ function change_EIC(hobj,~,direct,hdlmeth,hdlastc,hdlaxhm,hdlimg)
                         vhdl=findobj('Tag','SL_plot_v');% change the vertical slider
                         vhdl.Value=max(0,vhdl.Value+(1/(filenum-(ylim(2)-ylim(1)))));
                     end
+                    % update the EIC plot
+                    plot_EIC(hdlimg,'',fileid-1,compid);
+                else
+                    % update the EIC plot
+                    plot_EIC(hdl2,'',fileid-1,compid);
+                    % update the TIC plot
+                    plot_TIC('',''); % generate the TIC plot
                 end
                 if isempty(findobj('Tag','reg_result')) % sample data
                     % change the highlighted file name
                     set(findobj('Tag','list_file'),'Value',fileid-1);
                 end
-                plot_EIC(hdlimg,'',fileid-1,compid);
             else
                 set(hobj,'BackgroundColor','r');
             end
@@ -6216,12 +6322,18 @@ function change_EIC(hobj,~,direct,hdlmeth,hdlastc,hdlaxhm,hdlimg)
                         vhdl=findobj('Tag','SL_plot_v');% change the vertical slider
                         vhdl.Value=min(1,vhdl.Value-(1/(filenum-(ylim(2)-ylim(1)))));
                     end
+                    % update the EIC plot
+                    plot_EIC(hdlimg,'',fileid+1,compid);
+                else
+                    % update the EIC plot
+                    plot_EIC(hdl2,'',fileid+1,compid);
+                    % update the TIC plot
+                    plot_TIC('',''); % generate the TIC plot
                 end
                 if isempty(findobj('Tag','reg_result')) % sample data
                     % change the highlighted file name
                     set(findobj('Tag','list_file'),'Value',fileid+1);
                 end
-                plot_EIC(hdlimg,'',fileid+1,compid);
             else
                 set(hobj,'BackgroundColor','r');
             end
@@ -6240,7 +6352,7 @@ function TIC_zoom_change(~,~)
     xdata=shdl(end).XData;
     xrange=xdata(end)-xdata(1);
     ydata=shdl(end).YData;
-    yrange=1.2*(max(ydata)-min(ydata));
+    yrange=1.01*(max(ydata)-min(ydata));
     SL_h=findobj('Tag','SL_plot_h');
     SL_v=findobj('Tag','SL_plot_v');
     if (abs(xrange-xlen)/xrange) < 1e-3
@@ -6296,11 +6408,11 @@ function TIC_select_compound(hobject,~,fileid,compid)
             % redraw the line
             line(axhdl,lhdl1.XData,axhdl.YLim,'color','r','linewidth',2,'tag','sel_line');
             % rewrite the text
-            h=text(axhdl,lhdl1.XData(1),0.9*axhdl.YLim(2),...
+            h=text(axhdl,lhdl1.XData(1),0.8*axhdl.YLim(2),...
                 char(method.indiv_name{compid},[' @ ',num2str(method.rt{method.EICidx(compid,2)}(method.EICidx(compid,3)))]),...
-                'rotation',90,'fontsize',12,'Interpreter','none','clipping','on');
+                'rotation',90,'fontsize',12,'Interpreter','none','clipping','on','HorizontalAlignment','left','Visible','off');
             ext=get(h,'extent');
-            set(h,'position',[lhdl1.XData(1),axhdl.YLim(2)-ext(4)],'color',[1 0 0],'tag','sel_name');
+            set(h,'position',[lhdl1.XData(1),axhdl.YLim(2)-1.01*ext(4)],'color',[1 0 0],'tag','sel_name','Visible','on');
         else % a selected compound is highlighted
             lhdl2.XData=[method.rt{method.EICidx(compid,2)}(method.EICidx(compid,3)) method.rt{method.EICidx(compid,2)}(method.EICidx(compid,3))];
             set(lhdl3,'String',lhdl0.String,'Position',lhdl0.Position);
@@ -6317,8 +6429,16 @@ function change_plot(hobj,~,towhich)
     ax1=findobj('Tag','AX_TIC_plot');
     ax2=findobj('Tag','AX_heat_map');
     bhdl=findobj('Tag','PB_TIC_Heat');
-    lhdl=findobj('tag','list_file');
-    fileid=lhdl.Value;
+    if contains(lower(get(findobj('Tag','PB_quant'),'UserData')),'standard') % quantitation on standard compound data
+        exp=get(findobj('Tag','rb_abs_stc'),'UserData');
+        filenum=length(exp.fname);
+    else % quantitation on testing data
+        lhdl=findobj('tag','list_file');
+        filenum=length(lhdl.String);
+    end
+    curidx=bhdl.UserData; % get the current file and peak indices
+    fileid=curidx(1);
+    compid=curidx(2);
     toTIC=false;
     if nargin < 3 % if no towhich is specified
         if strcmp(ax1.Visible,'off') % if the TIC plot is currently invisible
@@ -6330,7 +6450,7 @@ function change_plot(hobj,~,towhich)
         end
     end
     if toTIC % set the TIC plot to be visible
-        % turn off heatmap controls and turn on TIC controls
+        % turn off the heatmap controls and the turn on TIC ones
         set(findobj('Tag','MRM_Quant'),'WindowButtonMotionFcn',[],'WindowKeyPressFcn',[]);
         set(findall(ax1, '-property', 'visible'), 'visible', 'on'); % set TIC controls to visible
         set(findall(ax2, '-property', 'visible'), 'visible', 'off'); % set heatmap controls to invisible
@@ -6341,15 +6461,33 @@ function change_plot(hobj,~,towhich)
         bhdl.String='Show Heat Map';
         bhdl.Value=0;
         uistack(ax1,'top');
+        if ~isempty(hobj)
+            if strcmpi(hobj.Style,'listbox') % if the function is called by clicking a file in the listbox
+                fileid=get(findobj('tag','list_file'),'Value');
+                tstr=ax1.Title.String;
+                filestr=strrep(tstr,'TIC of ','');
+                filelist=lhdl.String;
+                bhdl.UserData=[fileid,compid];
+                if ~isempty(findobj('Tag','AX_miniature')) & ... % if the EIC plot is shown
+                        ~strcmpi(filestr,filelist{fileid}) % the selected file is different
+                    hdl2=findobj('Tag','sel_name');
+                    plot_EIC(hdl2,'',fileid,compid); %update the EIC
+                end
+            end
+        end
         plot_TIC('',''); % generate the TIC plot
         if ~isempty(hobj) && ...% call by the "Show TIC plot" button
                 (get(findobj('Tag','PB_inspect_mode'),'Value')==1) % the inspect mode is on
-            % get the currently selected file and compound IDs
-            shdl=findobj('tag','sel_rect');
-            if ~isempty(shdl)
-                compid=round(shdl.Position(1));
-                fileid=round(shdl.Position(2));
-                TIC_select_compound('','',fileid,compid); % highlight the selected compound
+            % update the miniature in the peak window
+            hdlaxm_mini=findobj('Tag','AX_miniature');
+            if ~isempty(hdlaxm_mini)
+                cla(hdlaxm_mini);
+                lhdl1=findobj('Tag','sel_line'); % get the handle of the selected peak in the LC
+                shdl=findobj('Tag','TIC_signal'); % get the handle of the LC signal
+                stem(hdlaxm_mini,shdl.XData,shdl.YData,'markersize',1,'color','k','tag','TIC_mini');
+                line(hdlaxm_mini,lhdl1.XData,lhdl1.YData,'Color','r','linewidth',2,'tag','sel_line_mini');
+                hdlaxm_mini.YDir='normal';
+                axis(hdlaxm_mini,'tight');
             end
         end
     else % set the heat map to be visible
@@ -6377,7 +6515,7 @@ function change_plot(hobj,~,towhich)
             if ~isempty(hdl) % if the MRM window exists
                 % find the selected compound index
                 compid=find(strcmpi(method.indiv_name,strtrim(hdl.String(1,:))));
-                filenum=length(lhdl.String);
+                %filenum=length(lhdl.String);
                 ihdl=findobj('Tag','im_heatmap');
                 cid=ihdl.CData;
                 aid=ihdl.AlphaData;
@@ -6399,8 +6537,7 @@ function change_plot(hobj,~,towhich)
                 else
                     set(shdl,'Position',[compid-0.5,fileid-0.5,1,1],'EdgeColor',RGB);
                 end
-                % set the heatmap range. Put the current compound at the
-                % center
+                % set the heatmap range. Put the current compound at the center
                 left=max(1,compid-ceil(0.5*para.comp_num)); % determine the left bound
                 top=max(1,fileid-ceil(0.5*para.file_num)); % determine the tio bound
                 ax2.XLim=[left-0.5 min(left+para.comp_num,method.nocomp)];
@@ -6435,13 +6572,14 @@ function change_plot(hobj,~,towhich)
                 end
                 rchdl2=findobj('Tag','sel_rect_mini'); % get the handle of the selected EIC in the heat map
                 if isempty(rchdl2)
-                    rectangle(hdlaxm_mini,'Position',shdl.Position,'EdgeColor',shdl.EdgeColor,'LineWidth',2,'LineStyle','-','Tag','sel_rect_mini');
+                    rectangle(hdlaxm_mini,'Position',shdl.Position,'EdgeColor',shdl.EdgeColor,...
+                        'LineWidth',2,'LineStyle','-','Tag','sel_rect_mini');
                 else
                     rchdl2.Position=shdl.Position;
                     rchdl2.EdgeColor=shdl.EdgeColor;
                 end
-                set(findobj('Tag','PB_prev_samp'),'Visible','on'); % in the heatmap plot mode, it is permitible to browse the previous file
-                set(findobj('Tag','PB_next_samp'),'Visible','on'); % in the heatmap plot mode, it is permitible to browse the next file
+                % set(findobj('Tag','PB_prev_samp'),'Visible','on'); % in the heatmap plot mode, it is permitible to browse the previous file
+                % set(findobj('Tag','PB_next_samp'),'Visible','on'); % in the heatmap plot mode, it is permitible to browse the next file
             end
         end
     end
@@ -6954,9 +7092,9 @@ function pre_quantitation_check(~,~)
         end
     end
     % check for retention time inputs
-    std_RT_data=get(findobj('tag','tbl_std_RT'),'data');
-    for i=1:size(std_RT_data,1)
-        if isnan(std_RT_data{i,2})
+    rt_tbl_data=get(findobj('tag','tbl_std_RT'),'data');
+    for i=1:size(rt_tbl_data,1)
+        if isnan(rt_tbl_data{i,2})
             hdl1.Enable='on';
             hdl2.Enable='on';
             errordlg('Some of the retention time readings are not eligible!','Parameter Error');
@@ -6965,7 +7103,6 @@ function pre_quantitation_check(~,~)
     end
     % check for the parameter inputs
     compdata=get(findobj('tag','pl_std_rt'),'UserData');
-    rt_tbl_data=get(findobj('tag','tbl_std_RT'),'Data');
     % store standard compound info
     stddata.abundance=zeros(fileno,compdata.nocomp);
     stddata.auto_bg=get(findobj('Tag','cb_std_auto_bg'),'Value');
@@ -7271,7 +7408,7 @@ function show_individual_standard_curve(~,~,comp_id)
     maxy=0;
     for j=1:nod
         orgy=result{j}.data{EICid}(:,2);
-        maxy=max(maxy,1.05*max(orgy(id1:id2)));
+        maxy=max(maxy,1.01*max(orgy(id1:id2)));
     end   
     if isempty(findobj('tag','conc_hdl11')) % if no plot of standard curves is selected by the user
         for j=1:min(5,nod) % draw the peak areas of the highlighted compound in the j-th file
@@ -7375,7 +7512,43 @@ function show_individual_peak_area(~,~,pkarea_plotid,filenum,hdlastc)
     else
         set(rthdl,'Position',[compid-0.5,fileid-0.5,1,1],'EdgeColor',RGB);
     end
-    plot_EIC(imhdl,'',fileid,compid);
+    % update the TIC plot
+    ahdl=findobj('Tag','AX_TIC_plot');
+    lhdl=findobj('Tag','sel_line');
+    thdl=findobj('Tag','sel_name');
+    rec=get(findobj('Tag','MRM_Quant'),'UserData');
+    EICid=exp.EICidx(compid,2); % convert to the compound index
+    peakid=exp.EICidx(compid,3); % convert to RT index
+    xidx=exp.rt{EICid}(peakid); % RT location of the compound
+    % redraw the TIC signal
+    set(findobj('tag','TIC_signal'),'XData',rec{fileid}.tic(:,1),'YData',rec{fileid}.tic(:,2));
+    if isempty(lhdl) %  no compound has been selected
+        % draw the line indicating the compound RT
+        line(ahdl,[xidx, xidx],ahdl.YLim,'color','r','linewidth',2,'tag','sel_line');
+        % write the text for compound name and RT
+        thdl=text(ahdl,xidx,0.8*ahdl.YLim(2),...
+            char(exp.indiv_name{compid},[' @ ',num2str(exp.rt{EICid}(peakid))]),...
+            'rotation',90,'fontsize',12,'Interpreter','none','clipping','on',...
+            'HorizontalAlignment','left','Visible','off');
+        ext=get(thdl,'extent');
+        set(thdl,'position',[xidx,ahdl.YLim(2)-1.01*ext(4)],'color',[1 0 0],'tag','sel_name','Visible','on');
+    else % update the existing line and text
+        set(lhdl,'XData',[xidx, xidx]);
+        set(thdl,'Position',[xidx,0.8*ahdl.YLim(2),0],'String',char(exp.indiv_name{compid},[' @ ',num2str(exp.rt{EICid}(peakid))]));
+        ext=get(thdl,'extent');
+        set(thdl,'Position',[xidx,ahdl.YLim(2)-1.01*ext(4),0]);
+    end
+    % activate the inspection mode
+    pbhdl=findobj('Tag','PB_inspect_mode');
+    if ~pbhdl.Value
+        set(pbhdl,'Value',1,'String','Deactivate Inspection Mode');
+    end
+    % update the individual peak plot
+    if phdl.Visible
+        plot_EIC(imhdl,'',fileid,compid);
+    else
+        plot_EIC(thdl,'',fileid,compid);
+    end
 end 
 %--------------------------------------------------------------
 % update the standard curve after a peak area is recomputed
@@ -8471,7 +8644,7 @@ function load_quantitation_result(~,~,hdlrec,hdlmeth,hdlastc,hdlpara)
         colorbar(ax);
         % plot the TIC plot
         waitbar(0.9,f,'Drawing TIC...');
-        change_plot('','','TIC');%plot_TIC();
+        change_plot('','','TIC');
         % plot heat map
         for i=1:length(var.filelist)
             try
@@ -9486,7 +9659,7 @@ function show_more_compound(hobj,~,pl_cur_comp,pl_more_comp,hdlrec,hdlmeth,fhdl)
                 end
                 id1=find(orgx>xrange(1),1,'first');
                 id2=find(orgx<xrange(2),1,'last');
-                maxy=max(1,1.05*max(orgy(id1:id2)));
+                maxy=max(1,1.01*max(orgy(id1:id2)));
                 if i==fileid
                     set(axhdl,'XColor','r','XLim',[orgx(1) orgx(end)],'YColor','r','YLim',[0 maxy],...
                         'LineWidth',2,'Box','on','Tag',['ax_sub',num2str(i-startp+1)]);
@@ -9663,7 +9836,7 @@ function show_compound_in_nearby_files(hobj,~,fileid,compoundid,hdlrec,hdlmeth,f
         set(ohdl4,'XData',orgx,'YData',result{i}.bg_int{EICid});
         id1=find(orgx>xrange(1),1,'first');
         id2=find(orgx<xrange(2),1,'last');
-        maxy=max(1,1.05*max(orgy(id1:id2)));
+        maxy=max(1,1.01*max(orgy(id1:id2)));
         axhdl.YRuler.SecondaryLabel.HorizontalAlignment='center';
         if i==orgfileid
             set(axhdl,'XColor','r','XLim',[orgx(1) orgx(end)],'YColor','r','YLim',[0 maxy],...
@@ -9813,7 +9986,7 @@ function modify_peak_area(~,~,fileid,compid)
     % draw a rectangle in the heatmap to indicate the selected compound
     rthdl=findobj('tag','sel_rect');
     if isempty(rthdl)
-        rectangle(phdl,'Position',[compid-0.5,fileid-0.5,1,1],'EdgeColor',RGB,'LineWidth',3,'LineStyle','-','tag','sel_rect');
+        rectangle(phdl1,'Position',[compid-0.5,fileid-0.5,1,1],'EdgeColor',RGB,'LineWidth',3,'LineStyle','-','tag','sel_rect');
     else
         set(rthdl,'Position',[compid-0.5,fileid-0.5,1,1],'EdgeColor',RGB);
     end
@@ -9921,7 +10094,7 @@ function show_standard_curve_related_comps(hobj,~,hdlrec,hdlmeth,hdlastc)
     tmaxy=0;
     for i=1:nod
         orgy=result{i}.data{EICid}(:,2);
-        tmaxy=max(tmaxy,1.05*max(orgy(id1:id2)));
+        tmaxy=max(tmaxy,1.01*max(orgy(id1:id2)));
     end
     for i=1:min(5,nod) % draw the i-th EICs of the first standard compound
         fileid=round((1.0-SliderValue)*(nod-5))+i;
@@ -10549,7 +10722,7 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range,is_
         QCAbund_comp=QCAbund(:,compidx(j));
         % construct the lowess regression curve
         keepid=~(isnan(QCAbund_comp) | isinf(QCAbund_comp));
-        span=max(3,min(para.lowess_span,sum(keepid)-2));
+        span=max(1,min(para.lowess_span,sum(keepid)-1));
         try
             yout=mslowess(qcidx(keepid),QCAbund_comp(keepid),'Order',2,'Kernel','tricubic',...
                 'Span',span,'RobustIterations',1);
@@ -11298,9 +11471,9 @@ function update_plots_in_EIC_window(hdlrec,hdlmeth,hdlpara,hdlastc,axhdl,fileid,
     % update the bounds of the EIC plot
     cb_show_detail=findobj('Tag','cb_show_detail');
     if cb_show_detail.Value
-        axis(axhdl,[minx maxx miny 1.05*maxy]);
+        axis(axhdl,[minx maxx miny 1.01*maxy]);
     end
-    cb_show_detail.UserData=[minx maxx miny 1.05*maxy];
+    cb_show_detail.UserData=[minx maxx miny 1.01*maxy];
     % update the title of the abundance-concentration plot
     ax_stc=findobj('Tag','AX_std_curve');
     if para.abs_stc || para.abs_int
