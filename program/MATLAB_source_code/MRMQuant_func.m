@@ -4397,11 +4397,15 @@ function old_rec=temporary_save_EIC(rec,fileid,EICid,peakid,ahdl)
     old_rec.abund_adjust_ratio=ones(filenum,compnum);
     if isempty(findobj('Tag','reg_result')) && ...% not a standard curve data
         get(findobj('Tag','cb_normal'),'Value') % the batch effect correction is selected
-        eid=1;
-        pid=1;
         for i=1:filenum
-            for j=compnum
-                old_rec.abund_adjust_ratio(i,j)=rec{i}.abund_adjust_ratio{eid}(pid);
+            eid=1;
+            pid=1;
+            for j=1:compnum
+                try
+                    old_rec.abund_adjust_ratio(i,j)=rec{i}.abund_adjust_ratio{eid}(pid);
+                catch
+                    disp('error')
+                end
                 if length(rec{i}.abund_adjust_ratio{eid}) == pid
                     pid=1;
                     eid=eid+1;
@@ -4433,10 +4437,10 @@ function rec = restore_EIC(rec,old_rec,fileid,EICid,peakid,para,ahdl)
     % restore the abund_adjust_ratio for batch effect correction
     if isempty(findobj('Tag','reg_result')) && ...% not a standard curve data
         get(findobj('Tag','cb_normal'),'Value') % the batch effect correction is selected
-        eid=1;
-        pid=1;
         for i=1:filenum
-            for j=compnum
+            eid=1;
+            pid=1;
+            for j=1:compnum
                 rec{i}.abund_adjust_ratio{eid}(pid)=old_rec.abund_adjust_ratio(i,j);
                 if length(rec{i}.abund_adjust_ratio{eid}) == pid
                     pid=1;
