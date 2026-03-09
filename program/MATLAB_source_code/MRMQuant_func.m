@@ -9416,6 +9416,7 @@ function update_concentration_and_heatmap_matrix(fileid,compoundid,EICid,hdlrec,
         errordlg(['No internal standard name ',method.IS{EICid},' is found in the compound list'],'Internal Standard Error','modal');
         return
     end
+    is_multi_comp=false;
     % check if the compound is a internal standard
     if isempty(method.IS)
         ISID=false(size(method.orig_name));
