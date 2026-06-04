@@ -52,10 +52,16 @@ function chromdata = MRM_read_fast(file)
     MRMnum=length(intidx); % actual MRM numbers
     chromdata.peakdata=cell(MRMnum,1); % create cells to store chromatography data
     chromdata.mzdata=cell(MRMnum,1); % create array to store peak data
+    iskeep=true(1,MRMnum);
     for i=1:MRMnum
         idx=str2double(fileData{infoidx(i)}(8:end));
         data=textscan(fileData{infoidx(i)+1},'%s');
         isSRM=contains(data{1},{'SRM','SIM'});
+        isTIC=contains(data{1},'TIC');
+        if ~any(isSRM) && ~any(isTIC) % ignore BPC (Base Peak Chromatogram)
+            iskeep(i)=false;
+            continue;
+        end
         if any(isSRM) % if the id method contains 'SRM', then its a SRM XIC. Otherwise it's a TIC.
             sidx=find(isSRM,1,'first');
             chromdata.mzdata{idx+1}=[str2double(data{1}{sidx+2}(4:end)) str2double(data{1}{sidx+3}(4:end))]; % parent(Q1) and daughter (Q3) values
@@ -71,6 +77,11 @@ function chromdata = MRM_read_fast(file)
             chromdata.peakdata{idx+1}(:,2)=double(string(intdata{1}(3:end)));
         end
     end
+    chromdata.mzdata=chromdata.mzdata(iskeep);
+    chromdata.peakdata=chromdata.peakdata(iskeep);
+    MRMnum=sum(iskeep);
+    infoidx=infoidx(iskeep);
+    idlist=idlist(iskeep);
     % collect data names that are NOT ion chromatagrams
     chromdata.NonMRM={};
     for i=(MRMnum+1):length(infoidx)
