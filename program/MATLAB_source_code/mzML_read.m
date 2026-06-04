@@ -61,6 +61,11 @@ function chromdata = mzML_read(file)
         pid=find(data{1}{2}=='"');
         idx=str2double(data{1}{2}(pid(1)+1:pid(2)-1)); % get spectrum index
         isSRM=contains(data{1},{'SRM','SIM'});
+        isTIC=contains(data{1},'TIC');
+        if ~any(isSRM) && ~any(isTIC) % ignore BPC (Base Peak Chromatogram)
+            iskeep(i)=false;
+            continue;
+        end
         if any(isSRM) % if the id method contains 'SRM', then its a SRM XIC. Otherwise it's a TIC.
             sidx=find(isSRM,1,'first');
             chromdata.mzdata{idx+1}=[str2double(data{1}{sidx+2}(4:end)) str2double(data{1}{sidx+3}(4:end))]; % parent(Q1) and daughter (Q3) values
@@ -76,7 +81,7 @@ function chromdata = mzML_read(file)
                 if contains(fileData{j},"<binary>")
                     rtdata=fileData{j}(9:end-9); % extract RT info string
                     chromdata.peakdata{idx+1}(:,1)=typecast(zlibdecode(swapbytes(base64decode(rtdata))),'double');
-                    intdata=fileData{j+6}(9:end-9); % extract RT info string
+                    intdata=fileData{j+6}(9:end-9); % extract intensity info string
                     chromdata.peakdata{idx+1}(:,2)=typecast(zlibdecode(swapbytes(base64decode(intdata))),'double');
                     break;
                 end
@@ -89,6 +94,7 @@ function chromdata = mzML_read(file)
     % collect data names that are NOT ion chromatagrams
     chromdata.NonMRM={};
     listidx=find(contains(fileData,'offset idRef=')); % start of a chromatogram list
+    listidx=listidx(iskeep);
     for i=(MRMnum+1):length(listidx)
         qid=strfind(fileData{listidx(i)},'"');
         chromdata.NonMRM=[chromdata.NonMRM;fileData{listidx(i)}((qid(1)+1):(qid(2)-1))];
