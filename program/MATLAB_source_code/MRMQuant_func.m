@@ -1726,16 +1726,24 @@ function plot_EIC(objectHandle , ~, par1,par2)
             % update the plots of neighboring compounds if the 'more>' is pressed
             show_compound_in_nearby_files('','',fileid,compoundid,hdlrec,hdlmeth,'',true);
         end
-        % show designated compound location
+        % compute x and y ranges of EIC data
         dlen=length(rec{fileid}.data{EICid}(:,2)); % EIC data length
-        maxy=max(1,1.01*max(rec{fileid}.data{EICid}(:,2))); % EIC max data height
-        miny=0;
-        maxstdy=0;
-        for i=1:peaknum % determine the height of the EIC plot and check the RTs of the designated compounds
-            [~,tid]=min(abs(rec{fileid}.data{EICid}(:,1)-method.rt{EICid}(i))); % find the singal index that matches with the tip of the ith compound
-            if (tid >= 5) && ((tid+5) <= dlen) %else
-                maxstdy=max(max(rec{fileid}.data{EICid}((tid-5):(tid+5),2)),maxstdy); % find the max intensity of the peak
+        if dlen == 0 % 20260628 no SRM signal
+            %warndlg('No signal is found for the expected compound!','Warning',struct('WindowStyle','modal','Interpreter','tex'));
+            miny=0;
+            maxy=1;
+            ax.XLim=[0 1];
+        else
+            maxy=max(1,1.01*max(rec{fileid}.data{EICid}(:,2))); % EIC max data height
+            miny=0;
+            maxstdy=0;
+            for i=1:peaknum % determine the height of the EIC plot and check the RTs of the designated compounds
+                [~,tid]=min(abs(rec{fileid}.data{EICid}(:,1)-method.rt{EICid}(i))); % find the singal index that matches with the tip of the ith compound
+                if (tid >= 5) && ((tid+5) <= dlen) %else
+                    maxstdy=max(max(rec{fileid}.data{EICid}((tid-5):(tid+5),2)),maxstdy); % find the max intensity of the peak
+                end
             end
+            ax.XLim=[min(rec{fileid}.data{EICid}(:,1)) max(rec{fileid}.data{EICid}(:,1))];
         end
         adjy=maxy;
         hdl=zeros(8,1);
@@ -1752,51 +1760,82 @@ function plot_EIC(objectHandle , ~, par1,par2)
         % draw original EIC signals
         temphdl=findobj('tag','lc_hdl2');
         if isempty(temphdl) % if the signals do not exist, draw the signals
-            hdl(2)=stem(ax,rec{fileid}.data{EICid}(:,1),rec{fileid}.data{EICid}(:,2),...
-                'markersize',1,'color','k','linewidth',1,'tag','lc_hdl2');
+            if dlen == 0
+                hdl(2)=stem(ax,method.rt{EICid},0,'markersize',1,'color','k',...
+                    'linewidth',1,'tag','lc_hdl2','Visible','off');
+            else
+                hdl(2)=stem(ax,rec{fileid}.data{EICid}(:,1),rec{fileid}.data{EICid}(:,2),...
+                    'markersize',1,'color','k','linewidth',1,'tag','lc_hdl2','Visible','on');
+            end
         else % the signals exist, update their data
             hdl(2)=temphdl;
-            set(hdl(2),'XData',rec{fileid}.data{EICid}(:,1),'YData',rec{fileid}.data{EICid}(:,2));
+            if dlen == 0
+                set(hdl(2),'XData',method.rt{EICid},'YData',0,'Visible','off');
+            else
+                set(hdl(2),'XData',rec{fileid}.data{EICid}(:,1),'YData',rec{fileid}.data{EICid}(:,2),'Visible','on');
+            end
         end
-        ax.XLim=[min(rec{fileid}.data{EICid}(:,1)) max(rec{fileid}.data{EICid}(:,1))];
         % draw smoothed EIC signals
         temphdl=findobj('tag','lc_hdl3');
         if isempty(temphdl) % if the signals do not exist, draw the signals
-            hdl(3)=line(ax,rec{fileid}.data{EICid}(:,1),rec{fileid}.smoothy{EICid}+rec{fileid}.bg_int{EICid},...
-                'linestyle','-','color','k','linewidth',2,'tag','lc_hdl3');
+            if dlen == 0
+                hdl(3)=line(ax,method.rt{EICid},0,'linestyle','-','color','k',...
+                    'linewidth',2,'tag','lc_hdl3','Visible','off');
+            else
+                hdl(3)=line(ax,rec{fileid}.data{EICid}(:,1),rec{fileid}.smoothy{EICid}+rec{fileid}.bg_int{EICid},...
+                    'linestyle','-','color','k','linewidth',2,'tag','lc_hdl3','Visible','on');
+            end
         else % the signals exist, update their data
             hdl(3)=temphdl;
-            set(hdl(3),'XData',rec{fileid}.data{EICid}(:,1),'YData',rec{fileid}.smoothy{EICid}+rec{fileid}.bg_int{EICid});
+            if dlen == 0
+                set(hdl(3),'XData',method.rt{EICid},'YData',0,'Visible','off');
+            else
+                set(hdl(3),'XData',rec{fileid}.data{EICid}(:,1),'YData',rec{fileid}.smoothy{EICid}+rec{fileid}.bg_int{EICid},'Visible','on');
+            end
         end
         % indices the detected peak
         pid=rec{fileid}.is_compound{EICid}(:,peakid);
-        % indices the peak tip
-        tid=rec{fileid}.is_peak{EICid}(:,peakid);
+        % % indices the peak tip
+        %tid=rec{fileid}.is_peak{EICid}(:,peakid);
         temphdl=findobj('tag','lc_hdl4');
         if isempty(temphdl) % if the signals do not exist, draw the signals
             if ~isempty(pid) % if the peak is detected, draw the peak signals
                 hdl(4)=stem(ax,rec{fileid}.data{EICid}(pid,1),rec{fileid}.data{EICid}(pid,2),...
-                    'markersize',3,'color','g','linewidth',2,'tag','lc_hdl4');
-            else % no peak is detected, draw the expected peak tip
-                hdl(4)=stem(ax,rec{fileid}.data{EICid}(tid,1),0,...
-                    'markersize',3,'color','g','linewidth',2,'tag','lc_hdl4');
+                    'markersize',3,'color','g','linewidth',2,'tag','lc_hdl4','Visible','on');
+            % elseif ~isempty(tid) % no peak is detected, draw the expected peak tip 
+            %     hdl(4)=stem(ax,rec{fileid}.data{EICid}(tid,1),0,...
+            %         'markersize',3,'color','g','linewidth',2,'tag','lc_hdl4','Visible','on');
+            else
+                hdl(4)=stem(ax,method.rt{EICid},0,'markersize',3,'color','g',...
+                    'linewidth',2,'tag','lc_hdl4','Visible','off'); % 20260628 no SRM signal
             end
         else % the signals exist, update their data
             hdl(4)=temphdl;
             if ~isempty(pid) % if the peak is detected, update the peak signals
-                set(hdl(4),'XData',rec{fileid}.data{EICid}(pid,1),'YData',rec{fileid}.data{EICid}(pid,2));
-            else % no peak is detected, update the expected peak tip
-                set(hdl(4),'XData',rec{fileid}.data{EICid}(tid,1),'YData',0);
+                set(hdl(4),'XData',rec{fileid}.data{EICid}(pid,1),'YData',rec{fileid}.data{EICid}(pid,2),'Visible','on');
+            % elseif ~isempty(tid) % no peak is detected, update the expected peak tip
+            %     set(hdl(4),'XData',rec{fileid}.data{EICid}(tid,1),'YData',0,'Visible','on');
+            else
+                set(hdl(4),'XData',method.rt{EICid},'YData',0,'Visible','off'); % 20260628 no SRM signal
             end
         end
         % show the peak tip
         temphdl=findobj('tag','lc_hdl5');
         if isempty(temphdl)
-            hdl(5)=stem(ax,rec{fileid}.data{EICid}(tid,1),rec{fileid}.data{EICid}(tid,2),...
-                'markersize',1,'color','r','linewidth',2,'tag','lc_hdl5');
+            if dlen == 0
+                hdl(5)=stem(ax,rec{fileid}.data{EICid}(tid,1),rec{fileid}.data{EICid}(tid,2),...
+                    'markersize',1,'color','r','linewidth',2,'tag','lc_hdl5','Visible','off');
+            else
+                hdl(5)=stem(ax,rec{fileid}.data{EICid}(tid,1),rec{fileid}.data{EICid}(tid,2),...
+                    'markersize',1,'color','r','linewidth',2,'tag','lc_hdl5','Visible','on');
+            end
         else
             hdl(5)=temphdl;
-            set(hdl(5),'XData',rec{fileid}.data{EICid}(tid,1),'YData',rec{fileid}.data{EICid}(tid,2));
+            if dlen == 0
+                set(hdl(5),'XData',method.rt{EICid},'YData',0,'Visible','off'); % 20260628 no SRM signal
+            else
+                set(hdl(5),'XData',rec{fileid}.data{EICid}(tid,1),'YData',rec{fileid}.data{EICid}(tid,2),'Visible','on');
+            end
         end
         % show deconvoluted peak (if exists)
         temphdl=findobj('tag','lc_hdl6');
@@ -1808,33 +1847,59 @@ function plot_EIC(objectHandle , ~, par1,par2)
                     'linewidth',2,'tag','lc_hdl6','Visible','on');
             else
                 hdl(6)=temphdl;
-                set(hdl(6),'XData',rec{fileid}.data{EICid}(keepid,1),'YData',pmtx(keepid),'Visible','on');
+                if dlen == 0
+                    set(hdl(6),'XData',method.rt{EICid},'YData',0,'Visible','off');
+                else
+                    set(hdl(6),'XData',rec{fileid}.data{EICid}(keepid,1),'YData',pmtx(keepid),'Visible','on');
+                end
             end
         else
             if isempty(temphdl)
                 hdl(6)=stem(ax,rec{fileid}.data{EICid}(:,1),pmtx,'markersize',1,'color','b','linewidth',2,'tag','lc_hdl6','Visible','off');
             else
                 hdl(6)=temphdl;
-                set(hdl(6),'XData',rec{fileid}.data{EICid}(:,1),'YData',pmtx,'Visible','off');
+                if dlen == 0
+                    set(hdl(6),'XData',method.rt{EICid},'YData',0,'Visible','off');
+                else
+                    set(hdl(6),'XData',rec{fileid}.data{EICid}(:,1),'YData',pmtx,'Visible','off');
+                end
             end
         end
         % show esmated background singal of the EIC
         temphdl=findobj('tag','lc_hdl7');
         if isempty(temphdl)
-            hdl(7)=stem(ax,rec{fileid}.data{EICid}(:,1),rec{fileid}.bg_int{EICid},...
-                'markersize',1,'color',[0.5 0.5 0.5],'linewidth',2,'tag','lc_hdl7');
+            if dlen == 0
+                hdl(7)=stem(ax,method.rt{EICid},0,'markersize',1,'color',[0.5 0.5 0.5],...
+                    'linewidth',2,'tag','lc_hdl7','Visible','off');
+            else
+                hdl(7)=stem(ax,rec{fileid}.data{EICid}(:,1),rec{fileid}.bg_int{EICid},...
+                    'markersize',1,'color',[0.5 0.5 0.5],'linewidth',2,'tag','lc_hdl7','Visible','on');
+            end
         else
             hdl(7)=temphdl;
-            set(hdl(7),'XData',rec{fileid}.data{EICid}(:,1),'YData',rec{fileid}.bg_int{EICid});
+            if dlen == 0
+                set(hdl(7),'XData',method.rt{EICid},'YData',0,'Visible','off');
+            else
+                set(hdl(7),'XData',rec{fileid}.data{EICid}(:,1),'YData',rec{fileid}.bg_int{EICid},'Visible','on');
+            end
         end
         % update the min peak height satisfying S/N 
         temphdl=findobj('tag','lc_hdl8');
         if isempty(temphdl)
-            hdl(8)=line(ax,rec{fileid}.data{EICid}(:,1),rec{fileid}.bg_int{EICid}*para.sn_ratio,...
-                'color','m','linewidth',2,'linestyle',':','tag','lc_hdl8');
+            if dlen == 0
+                hdl(8)=line(ax,method.rt{EICid},0,'color','m','linewidth',2,...
+                    'linestyle',':','tag','lc_hdl8','Visible','off');
+            else
+                hdl(8)=line(ax,rec{fileid}.data{EICid}(:,1),rec{fileid}.bg_int{EICid}*para.sn_ratio,...
+                    'color','m','linewidth',2,'linestyle',':','tag','lc_hdl8','Visible','on');
+            end
         else
             hdl(8)=temphdl;
-            set(hdl(8),'xdata',rec{fileid}.data{EICid}(:,1),'ydata',rec{fileid}.bg_int{EICid}*para.sn_ratio);
+            if dlen == 0
+                set(hdl(8),'xdata',method.rt{EICid},'ydata',0,'Visible','off');
+            else
+                set(hdl(8),'xdata',rec{fileid}.data{EICid}(:,1),'ydata',rec{fileid}.bg_int{EICid}*para.sn_ratio,'Visible','on');
+            end
         end
         % collect handles of drawing components
         if any(pmtx>0) 
@@ -1915,21 +1980,26 @@ function plot_EIC(objectHandle , ~, par1,par2)
         end
         difx=(rbound-lbound)/2;
         % find left and right bounds
-        minx=max(rec{fileid}.data{EICid}(1,1),lbound-difx);
-        maxx=min(rec{fileid}.data{EICid}(end,1),rbound+difx);
-        % find the max height
-        if any(pid)
-            maxy=max(rec{fileid}.data{EICid}(pid,2));
-        elseif exist('lid','var')
-            maxy=max(rec{fileid}.data{EICid}(lid:rid,2));
-        else
-            bd=rec{fileid}.bdp{EICid}(peakid,:);
-            maxy=max(rec{fileid}.data{EICid}(bd(1):bd(2),2));
-        end
-        if isempty(maxy)
-            maxy = miny + 1.0;
-        elseif (maxy <= miny) 
-            maxy = miny + 1.0;
+        if dlen > 0
+            minx=max(rec{fileid}.data{EICid}(1,1),lbound-difx);
+            maxx=min(rec{fileid}.data{EICid}(end,1),rbound+difx);
+            % find the max height
+            if any(pid)
+                maxy=max(rec{fileid}.data{EICid}(pid,2));
+            elseif exist('lid','var')
+                maxy=max(rec{fileid}.data{EICid}(lid:rid,2));
+            else
+                bd=rec{fileid}.bdp{EICid}(peakid,:);
+                maxy=max(rec{fileid}.data{EICid}(bd(1):bd(2),2));
+            end
+            if isempty(maxy)
+                maxy = miny + 1.0;
+            elseif (maxy <= miny) 
+                maxy = miny + 1.0;
+            end
+        else % 20260628 no SRM signal
+            minx=method.rt{EICid}(peakid)-method.rt_diff{EICid}(peakid)-0.1;
+            maxx=method.rt{EICid}(peakid)+method.rt_diff{EICid}(peakid)+0.1;
         end
         cb_show_detail.UserData=[minx maxx miny 1.01*maxy];
         if cb_show_detail.Value
@@ -2098,6 +2168,14 @@ function plot_EIC(objectHandle , ~, par1,par2)
             ylabel(axs,'percentage','fontsize',12);
             title(axs,['\fontsize{12}Rel. Abundance = {\color{red}',num2str(percentage,'%.2f'),'%}']);
         end
+    end
+    % disable the peak adjustment if no signal in the SRM
+    plhdl=findobj('Tag','pl_correct');
+    children = get(plhdl, 'Children'); 
+    if dlen == 0
+        set(children, 'Enable', 'off');
+    else
+        set(children, 'Enable', 'on');
     end
     % update the location of the current select compound in the heatmap
     set(fig,'UserData',[fileid,compoundid]);
@@ -2445,7 +2523,8 @@ function fig=create_EIC_window(fromwhere,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,h
         'BackgroundColor',bgcolor,...
         'BorderType','line',... 
         'HighLightColor','k',...
-        'Position',[0.6 0.04 0.25 0.24]);
+        'Position',[0.6 0.04 0.25 0.24],...
+        'Tag','pl_correct');
     uicontrol('Parent',pl_correct, ...
         'Units','normalized', ...
         'FontUnits','normalized', ...
@@ -2795,21 +2874,22 @@ function peak_quantitation_all(hobj, ~,target)
                     isproblem=false;
                     QuantMsg=meglist.String;
                     if ~any(ISID)
-                        msg=['The ',num2str(j),'-th designated internal standard ',method.IS{j},' is not found in the list'];
+                        msg=['<html><font color="red">The ',num2str(j),'-th designated internal standard ',method.IS{j},' is not found in the list!</font></html>'];
                         isproblem=true;
                     elseif sum(ISID)>1
-                        msg=['The ',num2str(j),'-th designated internal standard ',method.IS{j},' has multiple matches in the list'];
+                        msg=['<html><font color="red">The ',num2str(j),'-th designated internal standard ',method.IS{j},' has multiple matches in the list!</font></html>'];
                         isproblem=true;
                     elseif (rec{i}.abundance{ISID}(1)<1e-8) % if the abundance of the internal standard is close to zero
-                        msg=['The designated internal standard ',method.IS{j},' is not found in ',name{i}];
+                        msg=['<html><font color="red">The designated internal standard ',method.IS{j},' is not found in ',name{i},'!</font></html>'];
                         isproblem=true;
                     elseif isempty(method.conc(j)) % if the concentration of the internal standard is not provided
-                        msg=['The relative concentration multiplier for ',method.IS{j},' is not set'];
+                        msg=['<html><font color="red">The relative concentration multiplier for ',method.IS{j},' is not set!</font></html>'];
                         isproblem=true;
                     end
                     if isproblem
                         if ~any(strcmp(QuantMsg,msg))
                             meglist.String=[QuantMsg;{msg}];
+                            %meglist.ListboxTop=numel(meglist.String);
                             if ~phhdl.UserData
                                 show_quantitation_message('','',1,hdlpara);
                             end
@@ -2852,6 +2932,7 @@ function peak_quantitation_all(hobj, ~,target)
                             if flag || isnan(rec{i}.conc_org{j}(k))
                                 QuantMsg=meglist.String;
                                 meglist.String=[QuantMsg;{['Quadratic regression failed for ',exp.indiv_name{idx},' in ',filelist{i},' ! Use linear regression instead.']}];
+                                %meglist.ListboxTop=numel(meglist.String);
                                 if ~phhdl.UserData
                                     show_quantitation_message('','',1,hdlpara);
                                 end
@@ -3055,9 +3136,9 @@ function peak_quantitation_file(~,~,index,target,hdlrec,hdlmeth,hdlpara,hdlastc,
     % ### iterate through each EIC to quantify peak abundance ###
     % -----------------------------------------------------------
     for i=1:nos % iterate through each standard compound in the method file
-%         if index==5 && i==18 % debug code
-%            disp('here');
-%         end
+        % if index==2 && i==21 % debug code
+        %    disp('here');
+        % end
         if contains(qhdl.UserData,'stop') % if the use press the "stop quantitation" button, terminate the quantitation process
             break;
         end
@@ -3075,6 +3156,14 @@ function peak_quantitation_file(~,~,index,target,hdlrec,hdlmeth,hdlpara,hdlastc,
         rec{index}.conc_org{i}=-1*ones(nop,1);
         rec{index}.concentration{i}=-1*ones(nop,1);
         rec{index}.quant_note{i}=zeros(nop,1);
+        if dlen == 0
+            QuantMsg=meglist.String;
+            msg=['<html><font color="red">The compound ',method.indiv_name{i},' in file ',filelist{index},' was not detected!</font></html>'];
+            meglist.String=[QuantMsg;{msg}];
+            %meglist.ListboxTop=numel(meglist.String);
+            rec{index}.quant_note{i}=ones(nop,1);
+            continue;
+        end
 %         if matchid(i)==0,continue;end % problematic EIC
         % determine the background intensity
         if bi_auto_detect % if the background is set to be determined automatically
@@ -3322,6 +3411,7 @@ function peak_quantitation_file(~,~,index,target,hdlrec,hdlmeth,hdlpara,hdlastc,
                     end
                 end
                 meglist.String=[QuantMsg;{msg}];
+                %meglist.ListboxTop=numel(meglist.String);
                 if ~msghdl.UserData
                     show_quantitation_message('','',1,hdlpara);
                 end
@@ -4693,6 +4783,7 @@ function rec=recompute_peak_info(rec,fileid,compoundid,didx,midx,method,para,exp
             meglist=findobj('Tag','quant_msg');
             QuantMsg=meglist.String;
             meglist.String=[QuantMsg;{msg}];
+            %meglist.ListboxTop=numel(meglist.String);
             if ~get(findobj('Tag','PB_show_msg'),'UserData')
                 show_quantitation_message('','',1,findobj('tag','pl_para'));
             end
@@ -4771,6 +4862,17 @@ end
 % use mouse to specified the peak boundaries for peak area correction 
 %------------------------------------------------------------------------
 function rect_selection(~,~,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,hdlimg,fhdl,ahdl)
+    vec=fhdl.UserData;
+    fileid=vec(1);
+    compoundid=vec(2);
+    % find the range of the current chromatogram
+    rec=hdlrec.UserData;
+    method=hdlmeth.UserData;
+    EICid=method.EICidx(method.EICidx(:,1)==compoundid,2);
+    if isempty(rec{fileid}.data{EICid}(:,1)) % 20260628 no SRM signal
+        warndlg('No signal is found for the expected compound!','Warning',struct('WindowStyle','modal','Interpreter','tex'));
+        return
+    end
     global GETRECT_H1
     % rubberand selection.
     try
@@ -4798,6 +4900,17 @@ end
 % use keyboard to specified the peak boundaries for peak area correction 
 %------------------------------------------------------------------------
 function input_boundary(~,~,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,hdlimg,fhdl,ahdl)
+    vec=fhdl.UserData;
+    fileid=vec(1);
+    compoundid=vec(2);
+    % find the range of the current chromatogram
+    rec=hdlrec.UserData;
+    method=hdlmeth.UserData;
+    EICid=method.EICidx(method.EICidx(:,1)==compoundid,2);
+    if isempty(rec{fileid}.data{EICid}(:,1)) % 20260628 no SRM signal
+        warndlg('No signal is found for the expected compound!','Warning',struct('WindowStyle','modal','Interpreter','tex'));
+        return
+    end
     global bgcolor
     fig=figure('Color',bgcolor,...
         'NumberTitle','off', ...
@@ -4921,6 +5034,10 @@ function check_specified_boundaries(hobj,~,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx
     rec=hdlrec.UserData;
     method=hdlmeth.UserData;
     EICid=method.EICidx(method.EICidx(:,1)==compoundid,2);
+    if isempty(rec{fileid}.data{EICid}(:,1)) % 20260628 no SRM signal
+        warndlg('No signal is found for the expected compound!','Warning',struct('WindowStyle','modal','Interpreter','tex'));
+        return
+    end
     rtmin=min(rec{fileid}.data{EICid}(:,1));
     rtmax=max(rec{fileid}.data{EICid}(:,1));
     % make sure that the left RT is greater than the min RT
@@ -5308,6 +5425,7 @@ function rec=peak_deconvolution(centid,fileid,compoundid,peakid,rec,halfcount,bg
             meglist=findobj('Tag','quant_msg');
             QuantMsg=meglist.String;
             meglist.String=[QuantMsg;{msg}];
+            %meglist.ListboxTop=numel(meglist.String);
             if ~get(findobj('Tag','PB_show_msg'),'UserData')
                 show_quantitation_message('','',1,hdlpara);
             end
@@ -5342,6 +5460,7 @@ function rec=peak_deconvolution(centid,fileid,compoundid,peakid,rec,halfcount,bg
             meglist=findobj('Tag','quant_msg');
             QuantMsg=meglist.String;
             meglist.String=[QuantMsg;{msg}];
+            %meglist.ListboxTop=numel(meglist.String);
             if ~get(findobj('Tag','PB_show_msg'),'UserData')
                 show_quantitation_message('','',1,hdlpara);
             end
@@ -5376,6 +5495,7 @@ function rec=peak_deconvolution(centid,fileid,compoundid,peakid,rec,halfcount,bg
         meglist=findobj('Tag','quant_msg');
         QuantMsg=meglist.String;
         meglist.String=[QuantMsg;{msg}];
+        %meglist.ListboxTop=numel(meglist.String);
         if ~get(findobj('Tag','PB_show_msg'),'UserData')
             show_quantitation_message('','',1,hdlpara);
         end
@@ -6015,7 +6135,6 @@ function cursorPos(hobj,~)
     % load quantation results
     rec=hobj.UserData;
     % get mouse coordinates
-    
     phdl=phdl(1);
     coord=get(phdl,'CurrentPoint');
     x=coord(1,1);
@@ -6266,7 +6385,7 @@ function change_EIC(hobj,~,direct,hdlmeth,hdlastc,hdlaxhm,hdlimg)
                     end
                     % update the EIC plot
                     plot_EIC(hdlimg,'',fileid,compid-1);
-                else
+                else % the current plot is TIC
                     set(hdl1,'XData',[rtvec(compid-1) rtvec(compid-1)],'YData',[0 ylim(2)]); % move the select line
                     set(hdl2,'String',char(strtrim(method.indiv_name{compid-1}),[' @ ',num2str(rtvec(compid-1))]),'HorizontalAlignment','left','Visible','off'); % restore the color of the previous compound name
                     ext=get(hdl2,'extent');
@@ -6296,7 +6415,7 @@ function change_EIC(hobj,~,direct,hdlmeth,hdlastc,hdlaxhm,hdlimg)
                     end
                     % update the EIC plot
                     plot_EIC(hdlimg,'',fileid-1,compid);
-                else
+                else % the current plot is TIC
                     % update the EIC plot
                     plot_EIC(hdl2,'',fileid-1,compid);
                     % update the TIC plot
@@ -6328,7 +6447,7 @@ function change_EIC(hobj,~,direct,hdlmeth,hdlastc,hdlaxhm,hdlimg)
                     end
                     % update the EIC plot
                     plot_EIC(hdlimg,'',fileid+1,compid);
-                else
+                else % the current plot is TIC
                     % update the EIC plot
                     plot_EIC(hdl2,'',fileid+1,compid);
                     % update the TIC plot
@@ -6342,6 +6461,17 @@ function change_EIC(hobj,~,direct,hdlmeth,hdlastc,hdlaxhm,hdlimg)
                 set(hobj,'BackgroundColor','r');
             end
     end
+    % % disable the peak adjustment if no signal in the SRM
+    % lhdl=findobj('tag','lc_hdl2');
+    % plhdl=findobj('Tag','pl_correct');
+    % children = get(plhdl, 'Children'); 
+    % if length(lhdl.XData) < 2
+    %     set(children, 'Enable', 'off');
+    %     %set(plhdl,'Enable','off');
+    % else
+    %     set(children, 'Enable', 'on');
+    %     %set(plhdl,'Enable','on');
+    % end
 end
 % ----------------------------------------------------------
 % adjust the horizontal and vertical sliders as the TIC plot is zoomed
@@ -9304,6 +9434,7 @@ function update_single_EIC(fileid,filename,compoundid,EICid,peakid,compoundname,
                 rec=peak_deconvolution(midx,fileid,EICid,peakid,rec,halfcount,bg_int,sn_ratio,min_rt_diff,min_peak_dist);
             catch
                 meglist.String=[meglist.String;{['The compound ',compoundname,' in file ',filename,' cannot be successfully quantitated during deconvolution!']}];
+                %meglist.ListboxTop=numel(meglist.String);
                 phhdl=findobj('Tag','PB_show_msg');
                 if ~phhdl.UserData
                     show_quantitation_message('','',1,hdlpara);
@@ -9459,6 +9590,7 @@ function update_concentration_and_heatmap_matrix(fileid,compoundid,EICid,hdlrec,
                     meglist=findobj('Tag','quant_msg');
                     QuantMsg=meglist.String;
                     meglist.String=[QuantMsg;{['Quadratic regression failed for ',exp.indiv_name{compoundid},' in ',filelist{fileids(i)},' ! Use linear regression instead.']}];
+                    %meglist.ListboxTop=numel(meglist.String);
                     if ~get(findobj('Tag','PB_show_msg'),'UserData')
                         show_quantitation_message('','',1,hdlpara);
                     end
@@ -9505,6 +9637,7 @@ function update_concentration_and_heatmap_matrix(fileid,compoundid,EICid,hdlrec,
                     meglist=findobj('Tag','quant_msg');
                     QuantMsg=meglist.String;
                     meglist.String=[QuantMsg;{['Quadratic regression failed for ',exp.indiv_name{compids(i)},' in ',filelist{fileid},' ! Use linear regression instead.']}];
+                    %meglist.ListboxTop=numel(meglist.String);
                     if ~get(findobj('Tag','PB_show_msg'),'UserData')
                         show_quantitation_message('','',1,hdlpara);
                     end
@@ -9587,11 +9720,19 @@ function show_more_compound(hobj,~,pl_cur_comp,pl_more_comp,hdlrec,hdlmeth,fhdl)
                         end
                     else % no peak is detected
                         if isempty(phdl)
-                            line(overhdl,orgx(result{i}.is_peak{EICid}(:,peakid)),...
-                                orgy(result{i}.is_peak{EICid}(:,peakid)),'tag','comp_overlap');
+                            if isempty(orgx) % 20260628 no SRM signal
+                                line(overhdl,xrange,[0 0],'tag','comp_overlap');
+                            else
+                                line(overhdl,orgx(result{i}.is_peak{EICid}(:,peakid)),...
+                                    orgy(result{i}.is_peak{EICid}(:,peakid)),'tag','comp_overlap');
+                            end
                         else
-                            set(phdl,'XData',orgx(result{i}.is_peak{EICid}(:,peakid)),...
-                                'YData',orgy(result{i}.is_peak{EICid}(:,peakid)));
+                            if isempty(orgx) % 20260628 no SRM signal
+                                set(phdl,'XData',xrange,'YData',[0 0]);
+                            else
+                                set(phdl,'XData',orgx(result{i}.is_peak{EICid}(:,peakid)),...
+                                    'YData',orgy(result{i}.is_peak{EICid}(:,peakid)));
+                            end
                         end
                     end
                 end
@@ -9621,12 +9762,14 @@ function show_more_compound(hobj,~,pl_cur_comp,pl_more_comp,hdlrec,hdlmeth,fhdl)
                     end
                 else % no peak is detected
                     if isempty(hdlcur)
-                        line(overhdl,orgx(result{fileid}.is_peak{EICid}(:,peakid)),...
-                            orgy(result{fileid}.is_peak{EICid}(:,peakid)),...
-                            'Color','r','Linewidth',2,'Tag','cur_curve');
+                        % line(overhdl,orgx(result{fileid}.is_peak{EICid}(:,peakid)),...
+                        %     orgy(result{fileid}.is_peak{EICid}(:,peakid)),...
+                        %     'Color','r','Linewidth',2,'Tag','cur_curve');
+                        line(overhdl,xrange,[0 0],'Color','r','Linewidth',2,'Tag','cur_curve');
                     else
-                        set(phdl(i),'XData',orgx(result{fileid}.is_peak{EICid}(:,peakid)),...
-                            'YData',orgy(result{fileid}.is_peak{EICid}(:,peakid)));
+                        % set(phdl(i),'XData',orgx(result{fileid}.is_peak{EICid}(:,peakid)),...
+                        %     'YData',orgy(result{fileid}.is_peak{EICid}(:,peakid)));
+                        set(phdl(i),'XData',xrange,'YData',[0 0]);
                     end
                 end
             end 
@@ -9645,7 +9788,7 @@ function show_more_compound(hobj,~,pl_cur_comp,pl_more_comp,hdlrec,hdlmeth,fhdl)
                     stem(axhdl,orgx(result{i}.is_compound{EICid}(:,peakid)),orgy(result{i}.is_compound{EICid}(:,peakid)),'markersize',3,...
                         'color','g','PickableParts','none','tag',['comphdl2',num2str(i-startp+1)]);
                 else
-                    stem(axhdl,orgx(result{i}.is_peak{EICid}(:,peakid)),0,'markersize',3,...
+                    stem(axhdl,0,0,'markersize',3,...
                         'color','g','PickableParts','none','tag',['comphdl2',num2str(i-startp+1)]);
                 end
                 % draw the compound tips
@@ -9666,12 +9809,21 @@ function show_more_compound(hobj,~,pl_cur_comp,pl_more_comp,hdlrec,hdlmeth,fhdl)
                 id2=find(orgx<xrange(2),1,'last');
                 maxy=max(1,1.01*max(orgy(id1:id2)));
                 if i==fileid
-                    set(axhdl,'XColor','r','XLim',[orgx(1) orgx(end)],'YColor','r','YLim',[0 maxy],...
-                        'LineWidth',2,'Box','on','Tag',['ax_sub',num2str(i-startp+1)]);
+                    boxcolor='r';
+                    lwidth=2;
                 else
-                    set(axhdl,'XColor','k','XLim',[orgx(1) orgx(end)],'YColor','k','YLim',[0 maxy],...
-                        'LineWidth',1,'Box','on','Tag',['ax_sub',num2str(i-startp+1)]);
+                    boxcolor='k';
+                    lwidth=1;
                 end
+                if isempty(orgx) % 20260628 no SRM signal
+                    xlim=xrange;
+                    ylim=[0 1];
+                else
+                    xlim=[orgx(1) orgx(end)];
+                    ylim=[0 maxy];
+                end
+                set(axhdl,'XColor',boxcolor,'XLim',xlim,'YColor',boxcolor,'YLim',ylim,...
+                    'LineWidth',lwidth,'Box','on','Tag',['ax_sub',num2str(i-startp+1)]);
                 title(axhdl,filelist{i},'interpreter','none');
                 pause(0.001);
             end
@@ -9755,7 +9907,9 @@ function show_compound_in_nearby_files(hobj,~,fileid,compoundid,hdlrec,hdlmeth,f
                 if isempty(phdl)
                     line(overhdl,orgx(decy>0),decy(decy>0),'tag','comp_overlap');
                 else
-                    set(phdl(i),'XData',orgx(decy>0),'YData',decy(decy>0));
+                    if ~isempty(orgx)
+                        set(phdl(i),'XData',orgx(decy>0),'YData',decy(decy>0));
+                    end
                 end
             else % no deconvolution signal exists, show the original peak signal
                 if any(result{i}.is_compound{EICid}(:,peakid)) % if a peak is detected
@@ -9763,8 +9917,10 @@ function show_compound_in_nearby_files(hobj,~,fileid,compoundid,hdlrec,hdlmeth,f
                         line(overhdl,orgx(result{i}.is_compound{EICid}(:,peakid)),...
                             orgy(result{i}.is_compound{EICid}(:,peakid)),'tag','comp_overlap');
                     else
-                        set(phdl(i),'XData',orgx(result{i}.is_compound{EICid}(:,peakid)),...
-                        'YData',orgy(result{i}.is_compound{EICid}(:,peakid)));
+                        if ~isempty(orgx)
+                            set(phdl(i),'XData',orgx(result{i}.is_compound{EICid}(:,peakid)),...
+                                'YData',orgy(result{i}.is_compound{EICid}(:,peakid)));
+                        end
                     end
                 else % no peak is detected
                     if isempty(phdl)
@@ -9844,12 +10000,21 @@ function show_compound_in_nearby_files(hobj,~,fileid,compoundid,hdlrec,hdlmeth,f
         maxy=max(1,1.01*max(orgy(id1:id2)));
         axhdl.YRuler.SecondaryLabel.HorizontalAlignment='center';
         if i==orgfileid
-            set(axhdl,'XColor','r','XLim',[orgx(1) orgx(end)],'YColor','r','YLim',[0 maxy],...
-                'LineWidth',2,'Box','on','buttondownfcn',{@modify_peak_area,i,compoundid});
+            boxcolor='r';
+            lwidth=2;
         else
-            set(axhdl,'XColor','k','XLim',[orgx(1) orgx(end)],'YColor','k','YLim',[0 maxy],...
-                'LineWidth',1,'Box','on','buttondownfcn',{@modify_peak_area,i,compoundid});
+            boxcolor='k';
+            lwidth=1;
         end
+        if isempty(orgx)
+            xlim=[0 1];
+            ylim=[0 1];
+        else
+            xlim=[orgx(1) orgx(end)];
+            ylim=[0 maxy];
+        end
+        set(axhdl,'XColor',boxcolor,'XLim',xlim,'YColor',boxcolor,'YLim',ylim,...
+            'LineWidth',lwidth,'Box','on','buttondownfcn',{@modify_peak_area,i,compoundid});
         title(axhdl,filelist{i},'interpreter','none');
         axhdl.TitleHorizontalAlignment = 'right';
         pause(0.001);
@@ -10626,6 +10791,7 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range,is_
     compend=range(4);
     pg_bar=findobj('Tag','pg_bar');
     pg_text=findobj('Tag','pg_text');
+    meglist=findobj('Tag','quant_msg');
     % initialize progress bar
     set(pg_bar,'Position',[0.0 0.0 0.0 0.0],'FaceColor','none');
     % collect the user-given batch information
@@ -10672,7 +10838,7 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range,is_
     % find involved compound names
     compname=method.indiv_name(compstart:compend);
     % find indices of the involved internal standards
-    stdidx=-1;
+    stdidx=[];
     if ~isempty(method.IS) % the names of internal standard are provided
         uniq_intstd_name=unique(method.IS); % internal stansard names
         tf=ismember(uniq_intstd_name,compname); % whether the selected compounds involved internal standard
@@ -10690,8 +10856,8 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range,is_
         is_std_involved=false;
     end
     % compute the indices of the involved compounds (internal standards first)
-    if (compstart==1) && (compend==compnum)
-        if stdidx > 0
+    if (compstart==1) && (compend==compnum) % all compounds are used
+        if is_std_involved % internal standards are assigned
             compidx=[stdidx setdiff(1:compnum,stdidx)];
         else
             compidx=1:compnum;
@@ -10728,23 +10894,33 @@ function batch_effect_correction(hdlrec,hdlmeth,hdlastc,hdlpara,hdlmtx,range,is_
         % construct the lowess regression curve
         keepid=~(isnan(QCAbund_comp) | isinf(QCAbund_comp));
         span=max(1,min(para.lowess_span,sum(keepid)-1));
-        try
-            yout=mslowess(qcidx(keepid),QCAbund_comp(keepid),'Order',2,'Kernel','tricubic',...
-                'Span',span,'RobustIterations',1);
-        catch
-            yout=mslowess(qcidx(keepid),QCAbund_comp(keepid),'Order',1,'Kernel','linear',...
-                'Span',span,'RobustIterations',1);
-            meglist=findobj('Tag','quant_msg');
+        if sum(keepid) < 2
             QuantMsg=meglist.String;
-            meglist.String=[QuantMsg;{['Nonlinear kernel in Lowess regression failed for ',method.indiv_name{i},' ! Use linear kernel instead.']}];
+            meglist.String=[QuantMsg;{['<html><font color="red">No batch effect correction on compound ',method.indiv_name{compidx(j)},' due to less than 2 quantifiable QCs.</font></html>']}];
+            %meglist.ListboxTop=numel(meglist.String);
             if ~get(findobj('Tag','PB_show_msg'),'UserData')
                 show_quantitation_message('','',1,hdlpara);
             end
+            abund_adjust_ratio=ones(size(SampAbund));
+        else
+            try
+                yout=mslowess(qcidx(keepid),QCAbund_comp(keepid),'Order',2,'Kernel','tricubic',...
+                    'Span',span,'RobustIterations',1);
+            catch
+                yout=mslowess(qcidx(keepid),QCAbund_comp(keepid),'Order',1,'Kernel','linear',...
+                    'Span',span,'RobustIterations',1);
+                QuantMsg=meglist.String;
+                meglist.String=[QuantMsg;{['Nonlinear kernel in Lowess regression failed for ',method.indiv_name{i},' ! Use linear kernel instead.']}];
+                %meglist.ListboxTop=numel(meglist.String);
+                if ~get(findobj('Tag','PB_show_msg'),'UserData')
+                    show_quantitation_message('','',1,hdlpara);
+                end
+            end
+            % spline curve
+            spl=interp1(qcidx(keepid),yout,1:filenum,'spline','extrap')';
+            abund_adjust_ratio=norm_abund(:,compidx(j))./spl;
         end
-        % spline curve
-        spl=interp1(qcidx(keepid),yout,1:filenum,'spline','extrap')';
         % compute the normalized abundances
-        abund_adjust_ratio=norm_abund(:,compidx(j))./spl;
         norm_abund(:,compidx(j))=SampAbund.*abund_adjust_ratio;
         for i=1:filenum
             rec{i}.abund_adjust_ratio{EICid}(peaknum)=abund_adjust_ratio(i);
@@ -11323,6 +11499,7 @@ function detect_by_ref(~,~,hdlrec,hdlmeth,hdlpara,hdlastc,hdlmtx,im,fhdl)
                         meglist=findobj('Tag','quant_msg');
                         QuantMsg=meglist.String;
                         meglist.String=[QuantMsg;{['Quadratic regression failed for ',exp.indiv_name{j},' in ',filelist{i},' ! Use linear regression instead.']}];
+                        %meglist.ListboxTop=numel(meglist.String);
                         if ~get(findobj('Tag','PB_show_msg'),'UserData')
                             show_quantitation_message('','',1,hdlpara);
                         end
